@@ -1,0 +1,74 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>$read_file_manifest_path</file>
+      <formatName>SENTINEL-1</formatName>
+    </parameters>
+  </node>
+  <node id="LinearToFromdB">
+    <operator>LinearToFromdB</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>Intensity_${upcase_polarisation}</sourceBands>
+    </parameters>
+  </node>
+  <node id="Speckle-Filter">
+    <operator>Speckle-Filter</operator>
+    <sources>
+      <sourceProduct refid="LinearToFromdB"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>Intensity_${upcase_polarisation}_db</sourceBands>
+      <filter>Median</filter>
+      <filterSizeX>5</filterSizeX>
+      <filterSizeY>5</filterSizeY>
+    </parameters>
+  </node>
+  <node id="Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
+    <sources>
+      <sourceProduct refid="Speckle-Filter"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>Intensity_${upcase_polarisation}_db</sourceBands>
+      <landMask>true</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <shorelineExtension>0</shorelineExtension>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>${downcase_polarisation}</file>
+      <formatName>GeoTIFF-BigTIFF</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="37.0" y="134.0"/>
+    </node>
+    <node id="LinearToFromdB">
+      <displayPosition x="95.0" y="91.0"/>
+    </node>
+    <node id="Speckle-Filter">
+      <displayPosition x="262.0" y="81.0"/>
+    </node>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="382.0" y="91.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="455.0" y="135.0"/>
+    </node>
+  </applicationData>
+</graph>

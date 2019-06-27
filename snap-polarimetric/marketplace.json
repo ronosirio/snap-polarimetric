@@ -1,0 +1,28 @@
+{
+  "overview": "This block provides a common polarimetric processing workflow with SNAP that operates ESA SAFE format scenes. The SNAP block takes a Level 1C GRD file and brings it into a format ready for analysis by using a median filter for speck filtering, creating a land-sea mask, and converting the format to a GeoTIFF. \n\n SNAP Polarimetric processing is value for all types of radar information by allowing for the discrimination of different targets and the derivation of  information about targets. \n  \n\n| General Information   | Description                                  |\n| --------------------- |----------------------------------------------|\n| Block Type            | processing (data preparation)                |\n| Supported Input Types | Sentinel 1 L1C GRD in SAFE format            |\n| Resolution            | identical to the input                       |\n| Performance           | Delivers output of all polarization types    |\n\n**Feature Highlights** (from ESA)\n⋅⋅ *Common architecture for all Toolboxes* \n⋅⋅ *Very fast image display and navigation even of giga-pixel images* \n⋅⋅ *Graph Processing Framework (GPF): for creating user-defined processing chains* \n⋅⋅ *Advanced layer management allows adding and manipulation of new overlays such as images of other bands, images from WMS servers or ESRI shapefiles* \n⋅⋅ *Rich region-of-interest definitions for statistics and various plots* \n⋅⋅ *Easy bitmask definition and overlay\n⋅⋅* Flexible band arithmetic using arbitrary mathematical expressions* \n⋅⋅ *Accurate reprojection and ortho-rectification to common map projections* \n⋅⋅ *Geo-coding and rectification using ground control points\n⋅⋅*Automatic SRTM DEM download and tile selection*\n⋅⋅ *Product library for scanning and cataloguing large archives efficiently* \n⋅⋅ *Multithreading and Multi-core processor support\n⋅⋅ *Integrated WorldWind visualization*\n\n\n",
+  "termsAndConditionsUrl": "https://up42.com/legal/privacy-policy",
+  "publicVersion": "1.0.27",
+  "iconUrl": "https://storage.googleapis.com/metadata-interstellar-staging/UP42_Blocks/SNAP/SNAP_avatar2.png",
+  "pricingStrategy": {
+    "type": "MEGABYTE_INPUT",
+    "credits": 1
+  },
+  "sampleData": [
+    {
+      "type": "IMAGE",
+      "value": "https://storage.googleapis.com/metadata-interstellar-staging/UP42_Blocks/SNAP/SNAP_original.png"
+    },
+    {
+      "type": "IMAGE",
+      "value": "https://storage.googleapis.com/metadata-interstellar-staging/UP42_Blocks/SNAP/SNAP_MtFuji.png"
+    },
+    {
+      "type": "IMAGE",
+      "value": "https://storage.googleapis.com/metadata-interstellar-staging/UP42_Blocks/SNAP/SNAP_Templehof.png"
+    },
+    {
+      "type": "IMAGE",
+      "value": "https://storage.googleapis.com/metadata-interstellar-staging/UP42_Blocks/SNAP/SNAP_Vienna.png"
+    }
+  ]
+}
