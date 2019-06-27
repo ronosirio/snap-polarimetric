@@ -1,0 +1,8 @@
+*.tif
+*.tiff
+__pycache__
+.idea
+.DS_Store
+*.pyc
+.mypy_cache
+.coverage
