@@ -1,8 +1,9 @@
-FROM interstellar-base-python3-snap
+FROM up42-snap-1.0
 
 WORKDIR /block
 
-COPY gpt.vmoptions /usr/local/snap/bin/
+#COPY gpt.vmoptions /usr/local/snap/bin/
+
 COPY src/ /block/src
 COPY requirements.txt /block
 
@@ -13,4 +14,4 @@ ENV LD_LIBRARY_PATH="."
 ARG manifest
 LABEL "up42_manifest"=$manifest
 
-CMD ["python3", "/block/src/run.py"]
+# CMD ["python3", "/block/src/run.py"]

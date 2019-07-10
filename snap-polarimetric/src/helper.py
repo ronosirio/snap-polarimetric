@@ -3,7 +3,7 @@ This module includes necessary helper functions that are used in the snap_polari
 """
 import json
 import os
-import pathlib
+from pathlib import Path
 import logging
 from geojson import FeatureCollection, Feature
 
@@ -32,8 +32,8 @@ def ensure_data_directories_exist():
     """
     This method checks input and output directories for data flow.
     """
-    pathlib.Path('/tmp/input/').mkdir(parents=True, exist_ok=True)
-    pathlib.Path('/tmp/output/').mkdir(parents=True, exist_ok=True)
+    Path('/tmp/input/').mkdir(parents=True, exist_ok=True)
+    Path('/tmp/output/').mkdir(parents=True, exist_ok=True)
 
 
 def load_params() -> dict:
@@ -53,8 +53,8 @@ def load_metadata() -> FeatureCollection:
     Get the geojson metadata from the provided location
     """
     ensure_data_directories_exist()
-    if os.path.exists("/tmp/input/data.json"):
-        with open("/tmp/input/data.json") as f_p:
+    if Path('/tmp/input/data.json').exists():
+        with Path('/tmp/input/data.json').open() as f_p:
             data = json.loads(f_p.read())
 
         features = []
@@ -71,5 +71,5 @@ def save_metadata(result: FeatureCollection):
     Save the geojson metadata to the provided location
     """
     ensure_data_directories_exist()
-    with open("/tmp/output/data.json", "w") as f_p:
+    with Path('/tmp/output/data.json').open(mode='w') as f_p:
         f_p.write(json.dumps(result))

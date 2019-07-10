@@ -3,13 +3,14 @@ This module include multiple test cases to check the performance of the snap_pol
 """
 import os
 import sys
+
 from unittest.mock import patch
 import shutil
 from pathlib import Path, PosixPath
 from xml.etree import ElementTree as ET
 
+import attr
 import geojson
-from geojson import Feature, FeatureCollection
 import pytest
 
 # pylint: disable=wrong-import-position
@@ -38,28 +39,21 @@ def test_validate_polarisations(requested, available, expected):
 
 
 # pylint: disable=redefined-outer-name
+# pylint: disable=too-few-public-methods
+@attr.s
 class DummySafeFile:
     """
     This class initiate a dummy .SAFE file.
     """
     # pylint: disable-msg=R0913, R0902
-    def __init__(self,
-                 location: Path,
-                 file_path: Path,
-                 manifest_path: Path,
-                 measurement_path: Path,
-                 vh_file: Path,
-                 vv_file: Path,
-                 feature_collection: FeatureCollection,
-                 feature: Feature):
-        self.location = location
-        self.file_path = file_path
-        self.manifest_path = manifest_path
-        self.measurement_path = measurement_path
-        self.vh_file = vh_file
-        self.vv_file = vv_file
-        self.feature_collection = feature_collection
-        self.feature = feature
+    location = attr.ib()
+    file_path = attr.ib()
+    manifest_path = attr.ib()
+    measurement_path = attr.ib()
+    vh_file = attr.ib()
+    vv_file = attr.ib()
+    feature_collection = attr.ib()
+    feature = attr.ib()
 
 
 @pytest.fixture(scope="session")
@@ -186,7 +180,10 @@ def test_generate_snap_graph(safe_file):
 
 @patch('os.system', lambda x: 0)
 def test_process_snap(safe_file):
-
+    """
+    This method tests the functionality of process_snap method. And checks
+    whether the expected polarization is created.
+    """
     test_feature = safe_file.feature
 
     output_file = SNAPPolarimetry().process_snap(test_feature, ['VV'])
@@ -195,20 +192,29 @@ def test_process_snap(safe_file):
 
 @patch('os.system', lambda x: 0)
 def test_process_snap_multiple_polarisations(safe_file):
-
+    """
+    This method tests the functionality of process_snap method for
+    multiple polarizations.
+    """
     test_feature = safe_file.feature
 
     output_file = SNAPPolarimetry().process_snap(test_feature, ['VV', 'VH'])
     assert output_file == ['vv', 'vh']
 
 
+# pylint: disable=unused-variable
 @patch('os.system', lambda x: 0)
 def test_process_multiple_polarisations(safe_file):
+    """
+    This method test the functionality of precess method. It checks
+    whether the expected bbox and properties is included in the
+    output.
+    """
     test_fc = safe_file.feature_collection
 
     params = {"polarisations": ["VV", "VH"]}
 
-    output_fc = SNAPPolarimetry().process(test_fc, params)
+    output_fc, outpath_fc, pol_fc = SNAPPolarimetry().process(test_fc, params)
 
     expected_bbox = [13.319549560546875, 38.20473446610163, 13.3209228515625, 38.205813598134746]
     assert len(output_fc.features) == 2

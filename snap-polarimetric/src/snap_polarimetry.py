@@ -12,6 +12,8 @@ import uuid
 import copy
 
 from geojson import FeatureCollection, Feature
+import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
 
 from helper import (load_params, load_metadata,
                     ensure_data_directories_exist, save_metadata, get_logger,
@@ -23,6 +25,7 @@ PARAMS_FILE = os.environ.get("PARAMS_FILE")
 GPT_CMD = "{gpt_path} {graph_xml_path} -e {source_file}"
 
 
+# pylint: disable=unnecessary-pass
 class WrongPolarizationError(ValueError):
     """
     This class passes to the next input file, if the current input file
@@ -175,6 +178,8 @@ class SNAPPolarimetry:
         polarisations: List = params.get("polarisations", ["VV"]) or ["VV"]
 
         results: List[Feature] = []
+        out_path: str = ''
+        processed_graphs: List = []
         for in_feature in metadata.get("features"):
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
@@ -187,7 +192,6 @@ class SNAPPolarimetry:
                     os.mkdir(out_path)
                     shutil.move(("%s.tif" % out_polarisation),
                                 ("%s%s.tif" % (out_path, out_polarisation)))
-
                     del out_feature["properties"][SENTINEL1_L1C_GRD]
 
                     set_capability(out_feature,
@@ -199,7 +203,53 @@ class SNAPPolarimetry:
             except WrongPolarizationError:
                 continue
 
-        return FeatureCollection(results)
+        return FeatureCollection(results), out_path, processed_graphs
+
+    @staticmethod
+    def reproject_to_webmercator(init_output):
+        """
+        This method maps the pixels of the output image to a different coordinate
+        reference system and transform. This process is known as reprojection.
+        """
+        dst_crs = 'epsg:3857'
+        update_output = "%s.tif" % (init_output+'_wgs84')
+        with rasterio.open(init_output) as src:
+            transform, width, height = calculate_default_transform(
+                src.crs, dst_crs, src.width, src.height, *src.bounds)
+            kwargs = src.meta.copy()
+            kwargs.update({
+                'crs': dst_crs,
+                'transform': transform,
+                'width': width,
+                'height': height,
+            })
+            with rasterio.open(update_output, 'w', **kwargs) as dst:
+                for i in range(1, src.count + 1):
+                    reproject(
+                        source=rasterio.band(src, i),
+                        destination=rasterio.band(dst, i),
+                        src_transform=src.transform,
+                        src_crs=src.crs,
+                        dst_transform=transform,
+                        dst_crs=dst_crs,
+                        resampling=Resampling.nearest)
+
+    @staticmethod
+    def post_process(output_filepath, list_pol):
+        """
+        This method updates the novalue data to be recognized by qgis.
+        """
+        for pol in list_pol:
+            out_file = "%s%s.tif" % (output_filepath, pol)
+            src = rasterio.open(out_file)
+            p_r = src.profile
+            p_r.update(nodata=0)
+            update_name = "%s%s.tif" % (output_filepath, "updated_" + pol)
+            image_read = src.read()
+            with rasterio.open(update_name, "w", **p_r) as dst:
+                for b_i in range(src.count):
+                    dst.write(image_read[b_i, :, :], indexes=b_i + 1)
+        return update_name
 
     @staticmethod
     def run():
@@ -210,5 +260,7 @@ class SNAPPolarimetry:
         params: dict = load_params()
         input_metadata: FeatureCollection = load_metadata()
         pol_processor = SNAPPolarimetry()
-        result: FeatureCollection = pol_processor.process(input_metadata, params)
+        result, outfile, outfile_pol = pol_processor.process(input_metadata, params)
         save_metadata(result)
+        updated_outfile = pol_processor.post_process(outfile, outfile_pol)
+        # pol_processor.reproject_to_webmercator(updated_outfile)
