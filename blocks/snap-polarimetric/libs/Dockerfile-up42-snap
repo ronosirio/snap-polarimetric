@@ -1,0 +1,18 @@
+FROM up42-esa-snap:1.0
+
+# Based on https://github.com/schwankner/esa-snap-with-python/blob/master/Dockerfile but with Python 3.7
+
+RUN echo "deb [trusted=yes] http://ftp.us.debian.org/debian sid main" >> /etc/apt/sources.list && \
+    echo "deb-src [trusted=yes] http://ftp.us.debian.org/debian sid main" >> /etc/apt/sources.list
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends -t sid python3.7 python3-setuptools python3-pip build-essential python3-wheel python3-dev gcc && \
+    apt-get install -y --no-install-recommends -t stretch openjdk-8-jdk-headless openjdk-8-jre-headless
+
+RUN mkdir -p /interstellar/libs
+WORKDIR /interstellar/libs
+
+COPY . /interstellar/libs
+COPY requirements.txt /interstellar/libs/
+RUN pip3 install -r /interstellar/libs/requirements.txt
+
+RUN python3 setup.py install
