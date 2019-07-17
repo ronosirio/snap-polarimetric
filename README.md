@@ -90,9 +90,13 @@ An example of params.json file is shown below:
 }
 ``
 
-#### Run the processing block 
- * First you need to get corresponding id after having the outcome of the `Sentinel-1 L1C GRD Full Scenes` data block and replace
- `<id>` in the `e2e.sh` file with the corresponding data id. Note that, this id also provide `data.json` file as well. 
+#### Run the processing block
+ * To run an end-to-end test locally you first need to download a Sentinel-1 dataset from the UP42 platform. Run a job
+ with the `Sentinel-1 L1C GRD Full Scenes` block and download its result. Copy the result (both the folder as well as
+ data.json) into a new directory with the name `/tmp/e2e_snap_polarimetric/`
+ * The name of the folder you just copied is the `test_file_uuid`. Replace 
+ `<id>` in the `e2e.sh` file with this identifier id. Note that, this id is also provided in `data.json` as a reference
+ to the dataset. 
  * Then you can run the following shell command:
 ```bash
     cd snap-polarimetric/blocks/snap-polarimetric/
@@ -118,7 +122,7 @@ GeoTIFF
 
 Capabilities
 ------------
-The block takes a ``data.sentinel1_l1c_grd`` product and delivers ``up42.processing.snap_polarimetric`` as capability.
+The block takes a ``up42.data.scene.sentinel1_l1c_grd`` product and delivers ``up42.data.aoiclipped`` as output capability.
 
 ## Related information
 
