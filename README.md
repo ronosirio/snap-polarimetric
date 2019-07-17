@@ -60,8 +60,16 @@ cd snap-polarimetric/blocks/snap-polarimetric/
 
 ### Build and run the docker image locally
 
-To build the Docker image for local using you can run the following shell command from the repository
-that contains the Dockerfile: 
+To build the Docker image for local using, first you need to create two local images as follow:
+```bash
+cd snap-polarimetric/blocks/snap-polarimetric/libs
+docker build -f Dockerfile-esa-snap -t up42-esa-snap:latest .
+docker build -f Dockerfile-up42-snap -t up42-snap:latest .
+``` 
+Note that the second command above, creates a base image with the newest version of SNAP. The third command creates the second
+image which has the necessary installation of python 3.7 and then it will be used in the main Dockerfile located in `snap-polarimetric/blocks/snap-polarimetric/`.
+
+finally you can run the following shell command from the repository that contains the Dockerfile: 
 
 ```bash
 cd snap-polarimetric/blocks/snap-polarimetric/
@@ -84,14 +92,15 @@ An example of params.json file is shown below:
 ``
 
 #### Run the processing block 
-
- * First run the following shell command:
+ * First you need to get corresponding id after having the outcome of the `Sentinel-1 L1C GRD Full Scenes` data block and replace
+ `<id>` in the `e2e.sh` file with the corresponding data id. Note that, this id also provide `data.json` file as well. 
+ * Then you can run the following shell command:
 ```bash
     cd snap-polarimetric/blocks/snap-polarimetric/
     ./e2e.sh
  ```
  * The above command creates a directory `/tmp/e2e_snap_polarimetric/` with two subdirectories `input` and `output`.
-  In the `/tmp/e2e_snap_polarimetric/input` there are an example of Sentinel 1 L1C GRD in SAFE format and `data.json` which is a
+  In the `/tmp/e2e_snap_polarimetric/input` there are an example of `Sentinel-1 L1C GRD full Scenes` in SAFE format and `data.json` which is a
   [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON) file.
  * Build the docker image as outlined above.
  * Run the following command: 
