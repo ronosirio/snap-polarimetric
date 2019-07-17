@@ -248,7 +248,7 @@ class SNAPPolarimetry:
         reference system and transform. This process is known as reprojection.
         """
         dst_crs = 'epsg:3857'
-        update_output = "%s.tif" % (init_output+'_wgs84')
+        update_output = "%s.tif" % (init_output+'_WM')
         with rasterio.open(init_output) as src:
             transform, width, height = calculate_default_transform(
                 src.crs, dst_crs, src.width, src.height, *src.bounds)
