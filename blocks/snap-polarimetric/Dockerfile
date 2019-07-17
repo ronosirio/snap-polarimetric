@@ -1,4 +1,4 @@
-FROM up42-snap-1.0
+FROM up42-snap:latest
 
 WORKDIR /block
 

@@ -1,4 +1,4 @@
-FROM up42-esa-snap:1.0
+FROM up42-esa-snap:latest
 
 # Based on https://github.com/schwankner/esa-snap-with-python/blob/master/Dockerfile but with Python 3.7
 
