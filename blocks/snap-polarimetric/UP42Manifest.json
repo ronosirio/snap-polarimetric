@@ -30,6 +30,6 @@
     "up42.data.scene.sentinel1_l1c_grd": {}
   },
   "output_capabilities": {
-    "up42.processing.snap_polarimetric": {}
+    "up42.data.aoiclipped": {}
   }
 }
