@@ -93,23 +93,12 @@ An example of params.json file is shown below:
 #### Run the processing block
  * To run an end-to-end test locally you first need to download a Sentinel-1 dataset from the UP42 platform. Run a job
  with the `Sentinel-1 L1C GRD Full Scenes` block and download its result. Copy the result (both the folder as well as
- data.json) into a new directory with the name `/tmp/e2e_snap_polarimetric/`
- * The name of the folder you just copied is the `test_file_uuid`. Replace 
- `<id>` in the `e2e.sh` file with this identifier id. Note that, this id is also provided in `data.json` as a reference
- to the dataset. 
- * Then you can run the following shell command:
-```bash
-    cd snap-polarimetric/blocks/snap-polarimetric/
-    ./e2e.sh
- ```
- * The above command creates a directory `/tmp/e2e_snap_polarimetric/` with two subdirectories `input` and `output`.
-  In the `/tmp/e2e_snap_polarimetric/input` there are an example of `Sentinel-1 L1C GRD full Scenes` in SAFE format and `data.json` which is a
-  [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON) file.
+ data.json) into a new directory with the name `/tmp/e2e_snap_polarimetric/`.
  * Build the docker image as outlined above.
  * Run the following command: 
  
 ```
- docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmpe2e_snap_polarimetric/input,dst=/tmp/input superresolution:latest
+ docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmpe2e_snap_polarimetric/input,dst=/tmp/input snap-polarimetric:latest
 ```
 This [bind mounts](https://docs.docker.com/storage/bind-mounts/) the
 host and container `/tmp/e2e_snap_polarimetric/input` and `/tmp/e2e_snap_polarimetric/output` directories into the
