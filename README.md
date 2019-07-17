@@ -78,8 +78,7 @@ docker build -t snap-polarimetric -f Dockerfile .
 
 ```
 In the next step you can use the `params.json` file to define which polarization you want to work
-and whether you want to have land-sea mask or terrain-correction as pre-processing steps. Please note that
-for if you choose to have land-sea mask, you can only set `land` or `sea` as a parameter.
+and whether you want to have land-sea mask or terrain-correction as pre-processing steps. Please note that if you choose to have land-sea mask, you can only set `land` or `sea` as a parameter.
 
 An example of params.json file is shown below:
 
