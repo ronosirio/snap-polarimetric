@@ -112,13 +112,6 @@ host and container `/tmp/e2e_snap_polarimetric/input` and `/tmp/e2e_snap_polarim
 **input** and **output** directories respectively. If you wish you can
 set it to some other directory that is convenient to you.
  
-
-## Supported parameters
-
-* ``polarisations`` - Requested polarisations, either one of [VV, VH], [HH, HV], [VV], [VH], [HV] or [HH]. The operation will fail and give a corresponding error message if the requested polarization is not part of the input file.
-
-NOTE: The current implementation only delivers output of the VV polarisation.
-
 Output format
 -------------
 GeoTIFF
