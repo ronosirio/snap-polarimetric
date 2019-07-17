@@ -11,7 +11,7 @@ output_dir="$tmp_dir"/output
 echo "Deleting "$output_dir
 rm -rf $output_dir
 
-test_file_uuid=aa036ac6-46f8-4ac4-80b4-7b7cb2dc01f1
+test_file_uuid=<id>
 test_file_dir=$input_dir/$test_file_uuid
 
 echo $test_file_dir
