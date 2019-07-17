@@ -2,8 +2,6 @@ FROM up42-snap:latest
 
 WORKDIR /block
 
-#COPY gpt.vmoptions /usr/local/snap/bin/
-
 COPY requirements.txt /block
 RUN pip3 install -r requirements.txt
 
