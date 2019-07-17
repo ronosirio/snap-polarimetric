@@ -5,8 +5,7 @@ FROM up42-esa-snap:latest
 RUN echo "deb [trusted=yes] http://ftp.us.debian.org/debian sid main" >> /etc/apt/sources.list && \
     echo "deb-src [trusted=yes] http://ftp.us.debian.org/debian sid main" >> /etc/apt/sources.list
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends -t sid python3.7 python3-setuptools python3-pip build-essential python3-wheel python3-dev gcc && \
-    apt-get install -y --no-install-recommends -t buster openjdk-8-jdk-headless openjdk-8-jre-headless
+    apt-get install -y --no-install-recommends -t sid python3.7 python3-setuptools python3-pip build-essential python3-wheel python3-dev openjdk-8-jdk-headless openjdk-8-jre-headless
 
 RUN mkdir -p /interstellar/libs
 WORKDIR /interstellar/libs
