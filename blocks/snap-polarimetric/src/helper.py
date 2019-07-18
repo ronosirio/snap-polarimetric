@@ -10,7 +10,7 @@ from geojson import FeatureCollection, Feature
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 SENTINEL1_L1C_GRD = "up42.data.scene.sentinel1_l1c_grd"
-SNAP_POLARIMETRIC = "up42.processing.snap_polarimetric"
+SNAP_POLARIMETRIC = "up42.data.aoiclipped"
 
 
 def get_logger(name, level=logging.DEBUG):

@@ -218,7 +218,6 @@ class SNAPPolarimetry:
         for in_feature in metadata.get("features"):
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
-
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
                     out_feature = copy.deepcopy(in_feature)
@@ -227,6 +226,7 @@ class SNAPPolarimetry:
                     os.mkdir(out_path)
                     shutil.move(("%s.tif" % out_polarisation),
                                 ("%s%s.tif" % (out_path, out_polarisation)))
+
                     del out_feature["properties"][SENTINEL1_L1C_GRD]
 
                     set_capability(out_feature,
@@ -242,33 +242,36 @@ class SNAPPolarimetry:
         return FeatureCollection(results), out_path, processed_graphs
 
     @staticmethod
-    def reproject_to_webmercator(init_output):
+    def reproject_to_webmercator(output_filepath, list_pol):
         """
         This method maps the pixels of the output image to a different coordinate
         reference system and transform. This process is known as reprojection.
         """
-        dst_crs = 'epsg:3857'
-        update_output = "%s.tif" % (init_output+'_WM')
-        with rasterio.open(init_output) as src:
-            transform, width, height = calculate_default_transform(
-                src.crs, dst_crs, src.width, src.height, *src.bounds)
-            kwargs = src.meta.copy()
-            kwargs.update({
-                'crs': dst_crs,
-                'transform': transform,
-                'width': width,
-                'height': height,
-            })
-            with rasterio.open(update_output, 'w', **kwargs) as dst:
-                for i in range(1, src.count + 1):
-                    reproject(
-                        source=rasterio.band(src, i),
-                        destination=rasterio.band(dst, i),
-                        src_transform=src.transform,
-                        src_crs=src.crs,
-                        dst_transform=transform,
-                        dst_crs=dst_crs,
-                        resampling=Resampling.nearest)
+        for pol in list_pol:
+            dst_crs = 'epsg:3857'
+            init_output = "%s%s.tif" % (output_filepath, pol)
+            update_output = "%s%s.tif" % (output_filepath, pol+'_WM')
+            with rasterio.open(init_output) as src:
+                transform, width, height = calculate_default_transform(
+                    src.crs, dst_crs, src.width, src.height, *src.bounds)
+                kwargs = src.meta.copy()
+                kwargs.update({
+                    'crs': dst_crs,
+                    'transform': transform,
+                    'width': width,
+                    'height': height,
+                })
+                with rasterio.open(update_output, 'w', **kwargs) as dst:
+                    for i in range(1, src.count + 1):
+                        reproject(
+                            source=rasterio.band(src, i),
+                            destination=rasterio.band(dst, i),
+                            src_transform=src.transform,
+                            src_crs=src.crs,
+                            dst_transform=transform,
+                            dst_crs=dst_crs,
+                            resampling=Resampling.nearest)
+            Path(output_filepath).joinpath("%s.tif" % pol).unlink()
 
     @staticmethod
     def post_process(output_filepath, list_pol):
@@ -277,16 +280,15 @@ class SNAPPolarimetry:
         can be recognized by qgis.
         """
         for pol in list_pol:
-            out_file = "%s%s.tif" % (output_filepath, pol)
-            src = rasterio.open(out_file)
+            init_output = "%s%s.tif" % (output_filepath, pol+'_WM')
+            src = rasterio.open(init_output)
             p_r = src.profile
             p_r.update(nodata=0)
-            update_name = "%s%s.tif" % (output_filepath, "updated_" + pol)
+            update_name = "%s%s.tif" % (output_filepath, "updated_" + pol+'_WM')
             image_read = src.read()
             with rasterio.open(update_name, "w", **p_r) as dst:
                 for b_i in range(src.count):
                     dst.write(image_read[b_i, :, :], indexes=b_i + 1)
-        return update_name
 
     # pylint: disable=unused-variable
     def revise_graph_xml(self, xml_file):
@@ -327,7 +329,8 @@ class SNAPPolarimetry:
         input_metadata: FeatureCollection = load_metadata()
         pol_processor = SNAPPolarimetry(params)
         result, outfile, outfile_pol = pol_processor.process(input_metadata, params)
+        # Reproject to webmercator
+        pol_processor.reproject_to_webmercator(outfile, outfile_pol)
         save_metadata(result)
         if params['mask'] is not None:
-            updated_outfile = pol_processor.post_process(outfile, outfile_pol)
-        # pol_processor.reproject_to_webmercator(updated_outfile)
+            pol_processor.post_process(outfile, outfile_pol)
