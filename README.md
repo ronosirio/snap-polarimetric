@@ -98,7 +98,7 @@ An example of params.json file is shown below:
  * Run the following command: 
  
 ```
- docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmpe2e_snap_polarimetric/input,dst=/tmp/input snap-polarimetric:latest
+ docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmp/e2e_snap_polarimetric/input,dst=/tmp/input snap-polarimetric:latest
 ```
 This [bind mounts](https://docs.docker.com/storage/bind-mounts/) the
 host and container `/tmp/e2e_snap_polarimetric/input` and `/tmp/e2e_snap_polarimetric/output` directories into the
