@@ -13,7 +13,6 @@ import copy
 
 from geojson import FeatureCollection, Feature
 import rasterio
-from rasterio.warp import calculate_default_transform, reproject, Resampling
 
 from helper import (load_params, load_metadata,
                     ensure_data_directories_exist, save_metadata, get_logger,
@@ -242,53 +241,23 @@ class SNAPPolarimetry:
         return FeatureCollection(results), out_path, processed_graphs
 
     @staticmethod
-    def reproject_to_webmercator(output_filepath, list_pol):
-        """
-        This method maps the pixels of the output image to a different coordinate
-        reference system and transform. This process is known as reprojection.
-        """
-        for pol in list_pol:
-            dst_crs = 'epsg:3857'
-            init_output = "%s%s.tif" % (output_filepath, pol)
-            update_output = "%s%s.tif" % (output_filepath, pol+'_WM')
-            with rasterio.open(init_output) as src:
-                transform, width, height = calculate_default_transform(
-                    src.crs, dst_crs, src.width, src.height, *src.bounds)
-                kwargs = src.meta.copy()
-                kwargs.update({
-                    'crs': dst_crs,
-                    'transform': transform,
-                    'width': width,
-                    'height': height,
-                })
-                with rasterio.open(update_output, 'w', **kwargs) as dst:
-                    for i in range(1, src.count + 1):
-                        reproject(
-                            source=rasterio.band(src, i),
-                            destination=rasterio.band(dst, i),
-                            src_transform=src.transform,
-                            src_crs=src.crs,
-                            dst_transform=transform,
-                            dst_crs=dst_crs,
-                            resampling=Resampling.nearest)
-            Path(output_filepath).joinpath("%s.tif" % pol).unlink()
-
-    @staticmethod
     def post_process(output_filepath, list_pol):
         """
         This method updates the novalue data to be 0 so it
         can be recognized by qgis.
         """
         for pol in list_pol:
-            init_output = "%s%s.tif" % (output_filepath, pol+'_WM')
+            init_output = "%s%s.tif" % (output_filepath, pol)
             src = rasterio.open(init_output)
             p_r = src.profile
             p_r.update(nodata=0)
-            update_name = "%s%s.tif" % (output_filepath, "updated_" + pol+'_WM')
+            update_name = "%s%s.tif" % (output_filepath, "updated_" + pol)
             image_read = src.read()
             with rasterio.open(update_name, "w", **p_r) as dst:
                 for b_i in range(src.count):
                     dst.write(image_read[b_i, :, :], indexes=b_i + 1)
+            Path(output_filepath).joinpath("%s.tif" % pol).unlink()
+            Path(update_name).rename(Path("%s%s.tif" % (output_filepath, pol)))
 
     # pylint: disable=unused-variable
     def revise_graph_xml(self, xml_file):
@@ -319,6 +288,38 @@ class SNAPPolarimetry:
             tree.write(xml_file)
 
     @staticmethod
+    def rename_final_stack(output_filepath, list_pol):
+        """
+        This method combine all the .tiff files with different polarization into one .tiff file.
+        Then it rename the final output and relocated in the right directory.
+        """
+        init_output = "%s%s.tif" % (output_filepath, list_pol[0])
+
+        # Read metadata of first file
+        with rasterio.open(init_output) as src0:
+            meta = src0.meta
+
+        # Update meta to reflect the number of layers
+        meta.update(count=len(list_pol))
+
+        # Read each layer and write it to stack
+        with rasterio.open("%s%s.tif" % (output_filepath, "stack"), 'w', **meta) as dst:
+            for i_d, layer in enumerate(list_pol, start=1):
+                with rasterio.open("%s%s.tif" % (output_filepath, layer)) as src1:
+                    dst.write_band(i_d, src1.read(1))
+                    dst.set_band_description(i_d, layer)
+        for pol in list_pol:
+            Path(output_filepath).joinpath("%s.tif" % pol).unlink()
+        # Rename the final output to be consistent with the data id.
+        Path("%s%s.tif" % (output_filepath, "stack")).rename\
+            (Path("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem)))
+        # Move the renamed file to parent directory
+        shutil.move("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem),
+                    "%s" % Path("%s" % output_filepath).parent)
+        # Remove the child directory
+        Path(output_filepath).rmdir()
+
+    @staticmethod
     # pylint: disable=unused-variable
     def run():
         """
@@ -329,8 +330,7 @@ class SNAPPolarimetry:
         input_metadata: FeatureCollection = load_metadata()
         pol_processor = SNAPPolarimetry(params)
         result, outfile, outfile_pol = pol_processor.process(input_metadata, params)
-        # Reproject to webmercator
-        pol_processor.reproject_to_webmercator(outfile, outfile_pol)
         save_metadata(result)
         if params['mask'] is not None:
             pol_processor.post_process(outfile, outfile_pol)
+        pol_processor.rename_final_stack(outfile, outfile_pol)
