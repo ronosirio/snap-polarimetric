@@ -1,0 +1,34 @@
+{
+  "_up42_specification_version": 1,
+  "name": "snap-polarimetric",
+  "type": "processing",
+  "tags": [
+    "snap",
+    "polarimetric",
+    "preprocessing"
+  ],
+  "display_name": "SNAP Polarimetric Processing",
+  "description": "This block provides a common polarimetric processing workflow with SNAP that operates ESA SAFE format scenes.",
+  "parameters": {
+    "polarisations": {
+      "type": "array",
+      "required": false,
+      "description": "Requested polarisations for the output",
+      "default": ["VV"],
+      "items": {
+        "type": "string",
+        "enum": ["VV", "VH"]
+      }},
+    "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
+    "tcorrection": {"type":  "boolean", "default":  true}
+  },
+  "machine": {
+    "type": "xlarge"
+  },
+  "input_capabilities": {
+    "up42.data.scene.sentinel1_l1c_grd": {}
+  },
+  "output_capabilities": {
+    "up42.data.aoiclipped": {}
+  }
+}
