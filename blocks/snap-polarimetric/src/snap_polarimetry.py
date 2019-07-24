@@ -11,6 +11,7 @@ from string import Template
 import uuid
 import copy
 
+import xml.etree.ElementTree as Et
 from geojson import FeatureCollection, Feature
 import rasterio
 
@@ -259,20 +260,17 @@ class SNAPPolarimetry:
             Path(output_filepath).joinpath("%s.tif" % pol).unlink()
             Path(update_name).rename(Path("%s%s.tif" % (output_filepath, pol)))
 
-    # pylint: disable=unused-variable
     def revise_graph_xml(self, xml_file):
         """
         This method checks whether, land-sea-mask or terrain-correction
         pre-processing step is needed or not. If not, it removes the
         corresponding node from the .xml file.
         """
-        import xml.etree.ElementTree as Et
-
         tree = Et.parse(xml_file)
         root = tree.getroot()
         all_nodes = root.findall("node")
         if self.params['mask'] is None:
-            for index, desc in enumerate(all_nodes):
+            for index, _ in enumerate(all_nodes):
                 if all_nodes[index].attrib['id'] == 'Land-Sea-Mask':
                     root.remove(all_nodes[index])
                     params = all_nodes[index + 1].find('sources')
@@ -280,7 +278,7 @@ class SNAPPolarimetry:
             tree.write(xml_file)
 
         if self.params['tcorrection'] == 'false':
-            for index, desc in enumerate(all_nodes):
+            for index, _ in enumerate(all_nodes):
                 if all_nodes[index].attrib['id'] == 'Terrain-Correction':
                     root.remove(all_nodes[index])
                     params = all_nodes[index + 1].find('sources')
@@ -320,7 +318,6 @@ class SNAPPolarimetry:
         Path(output_filepath).rmdir()
 
     @staticmethod
-    # pylint: disable=unused-variable
     def run():
         """
         This method is the main entry point for this processing block
