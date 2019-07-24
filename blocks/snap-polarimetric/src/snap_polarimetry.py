@@ -230,7 +230,7 @@ class SNAPPolarimetry:
 
                     set_capability(out_feature,
                                    SNAP_POLARIMETRIC,
-                                   processed_tif_uuid)
+                                   processed_tif_uuid+".tif")
 
                     results.append(out_feature)
 
@@ -290,8 +290,8 @@ class SNAPPolarimetry:
     @staticmethod
     def rename_final_stack(output_filepath, list_pol):
         """
-        This method combine all the .tiff files with different polarization into one .tiff file.
-        Then it rename the final output and relocated in the right directory.
+        This method combines all the .tiff files with different polarization into one .tiff file.
+        Then it renames and relocated the final output in the right directory.
         """
         init_output = "%s%s.tif" % (output_filepath, list_pol[0])
 
