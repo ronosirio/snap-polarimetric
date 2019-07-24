@@ -18,13 +18,12 @@
       "items": {
         "type": "string",
         "enum": ["VV", "VH"]
-      },
-      "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
-      "tcorrection": {"type":  "boolean", "default":  true}
-    }
+      }},
+    "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
+    "tcorrection": {"type":  "boolean", "default":  true}
   },
   "machine": {
-    "type": "large"
+    "type": "xlarge"
   },
   "input_capabilities": {
     "up42.data.scene.sentinel1_l1c_grd": {}
