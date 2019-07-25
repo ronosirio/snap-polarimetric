@@ -32,11 +32,13 @@ First create a virtual environment either by using [virtualenvwrapper](https://v
 or [virtualenv](https://virtualenv.pypa.io/en/latest/).
 In the case of using virtualenvwrapper do:
 
-```mkvirtualenv --python=$(which python3.7) up42-snap```
+```bash
+mkvirtualenv --python=$(which python3.7) up42-snap
+```
 
 In the case of using virtualenv do:
 
-````
+````bash
 virtualenv -p $(which python3.7) up42-snap
 ````
 
@@ -61,11 +63,13 @@ cd snap-polarimetric/blocks/snap-polarimetric/
 ### Build and run the docker image locally
 
 To build the Docker image for local using, first you need to create two local images as follow:
+
 ```bash
 cd snap-polarimetric/blocks/snap-polarimetric/libs
 docker build -f Dockerfile-esa-snap -t up42-esa-snap:latest .
 docker build -f Dockerfile-up42-snap -t up42-snap:latest .
 ``` 
+
 Note that the second command above, creates a base image with the newest version of SNAP. The third command creates the second
 image which has the necessary installation of python 3.7 and then it will be used in the main Dockerfile located in `snap-polarimetric/blocks/snap-polarimetric/`.
 
@@ -82,24 +86,26 @@ and whether you want to have land-sea mask or terrain-correction as pre-processi
 
 An example of params.json file is shown below:
 
-``
+```js
 {
   "polarisations": ["VV"],
   "mask": ["sea"],
   "tcorrection": "false"
 }
-``
+```
 
 #### Run the processing block
+
  * To run an end-to-end test locally you first need to download a Sentinel-1 dataset from the UP42 platform. Run a job
  with the `Sentinel-1 L1C GRD Full Scenes` block and download its result. Copy the result (both the folder as well as
  data.json) into a new directory with the name `/tmp/e2e_snap_polarimetric/`.
  * Build the docker image as outlined above.
  * Run the following command: 
  
-```
+```bash
  docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmp/e2e_snap_polarimetric/input,dst=/tmp/input snap-polarimetric:latest
 ```
+
 This [bind mounts](https://docs.docker.com/storage/bind-mounts/) the
 host and container `/tmp/e2e_snap_polarimetric/input` and `/tmp/e2e_snap_polarimetric/output` directories into the
 **input** and **output** directories respectively. If you wish you can
@@ -116,3 +122,12 @@ The block takes a ``up42.data.scene.sentinel1_l1c_grd`` product and delivers ``u
 ## Related information
 
 http://step.esa.int/main/toolboxes/snap/
+
+
+## TODO
+
+ 1. Upgrade the SNAP toolbox to 7.0.0.
+ 2. Add Makefile to build block.
+ 3. Make ESA SNAP image public?
+ 4. Fix multiple scenes processing.
+ 
