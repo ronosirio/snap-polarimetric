@@ -129,5 +129,4 @@ http://step.esa.int/main/toolboxes/snap/
  1. Upgrade the SNAP toolbox to 7.0.0.
  2. Add Makefile to build block.
  3. Make ESA SNAP image public?
- 4. Fix multiple scenes processing.
  
