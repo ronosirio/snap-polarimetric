@@ -170,12 +170,32 @@ class SNAPPolarimetry:
 
         self.target_snap_graph_path(feature, polarisation).write_text(result)
 
+    @staticmethod
+    def check_dem():
+        """
+        This methods checks if the latitude of input data is not in the range of default
+        Digital Elevation Model (DEM) in .xml file. If that would be the case, it uses another DEM.
+        """
+        dst = Path(__file__).parent.joinpath("template/snap_polarimetry_graph.xml")
+        tree = Et.parse(dst)
+        root = tree.getroot()
+        all_nodes = root.findall("node")
+        for index, _ in enumerate(all_nodes):
+            if all_nodes[index].attrib['id'] == 'Terrain-Correction':
+                all_nodes[index].find('parameters')[1].text = 'ASTER 1sec GDEM'
+            tree.write(dst)
+        #if not -56.0 < coor[3] < 60.0:
+            # file_pointer = open(dst)
+            # template = Template(file_pointer.read())
+            # result = template.substitute({'dem_name': 'ASTER 1sec GDEM'})
+            # Path(__file__).parent.joinpath(
+            #     "template/snap_polarimetry_graph_%s.xml" % "copy").write_text(result)
+
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
         Wrapper method to facilitate the setup and the actual execution of the SNAP processing
         command for the given feature
         """
-
         out_files = []
 
         input_file_path = self.safe_file_path(feature)
@@ -216,6 +236,9 @@ class SNAPPolarimetry:
         out_path: str = ''
         processed_graphs: List = []
         for in_feature in metadata.get("features"):
+            coordinate = in_feature['bbox']
+            if not -56.0 < coordinate[3] < 60.0:
+                self.check_dem()
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 for out_polarisation in processed_graphs:
