@@ -184,12 +184,6 @@ class SNAPPolarimetry:
             if all_nodes[index].attrib['id'] == 'Terrain-Correction':
                 all_nodes[index].find('parameters')[1].text = 'ASTER 1sec GDEM'
             tree.write(dst)
-        #if not -56.0 < coor[3] < 60.0:
-            # file_pointer = open(dst)
-            # template = Template(file_pointer.read())
-            # result = template.substitute({'dem_name': 'ASTER 1sec GDEM'})
-            # Path(__file__).parent.joinpath(
-            #     "template/snap_polarimetry_graph_%s.xml" % "copy").write_text(result)
 
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
