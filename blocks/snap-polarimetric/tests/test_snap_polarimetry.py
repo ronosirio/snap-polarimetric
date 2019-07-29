@@ -201,8 +201,8 @@ def test_extract_relevant_coordinate(fixture_mainclass):
     bbox_1 = [-110.568535, 67.500465, -96.790337, 72.47541]
     bbox_2 = [9.94, -55.13, 9.97, -55.15]
 
-    assert fixture_mainclass.check_coordinate(bbox_1) == 72.47541
-    assert fixture_mainclass.check_coordinate(bbox_2) == -55.15
+    assert fixture_mainclass.extract_relevant_coordinate(bbox_1) == 72.47541
+    assert fixture_mainclass.extract_relevant_coordinate(bbox_2) == -55.15
 
 
 @patch('os.system', lambda x: 0)
