@@ -170,12 +170,49 @@ class SNAPPolarimetry:
 
         self.target_snap_graph_path(feature, polarisation).write_text(result)
 
+    @staticmethod
+    def replace_dem():
+        """
+        This methods checks if the latitude of input data is not covered by of SRTM, the default
+        Digital Elevation Model (DEM), inside .xml template file. If that would be the case,
+        it uses ASTER 1sec GDEM as DEM for applying terrain correction.
+        """
+        dst = Path(__file__).parent.joinpath("template/snap_polarimetry_graph.xml")
+        tree = Et.parse(dst)
+        root = tree.getroot()
+        all_nodes = root.findall("node")
+        for index, _ in enumerate(all_nodes):
+            if all_nodes[index].attrib['id'] == 'Terrain-Correction':
+                all_nodes[index].find('parameters')[1].text = 'ASTER 1sec GDEM'
+            tree.write(dst)
+
+    @staticmethod
+    def extract_relevant_coordinate(coor):
+        """
+        This method checks for the maximum (minimum) latitude
+        for the Northern (Southern) Hemisphere.Then this latitude
+        will be used to check whether area of interest, containing this latitude,
+        is covered by default Digital Elevation Model (SRTM) or not.
+        """
+        if coor[1] and coor[3] < 0:
+            relevant_coor = min(coor[1], coor[3])
+        if coor[1] and coor[3] > 0:
+            relevant_coor = max(coor[1], coor[3])
+        return relevant_coor
+
+    def assert_dem(self, coor):
+        """
+        This method makes sure the correct DEM is been used at .xml file
+        """
+        r_c = self.extract_relevant_coordinate(coor)
+        if not -56.0 < r_c < 60.0:
+            self.replace_dem()
+
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
         Wrapper method to facilitate the setup and the actual execution of the SNAP processing
         command for the given feature
         """
-
         out_files = []
 
         input_file_path = self.safe_file_path(feature)
@@ -216,6 +253,8 @@ class SNAPPolarimetry:
         out_path: str = ''
         processed_graphs: List = []
         for in_feature in metadata.get("features"):
+            coordinate = in_feature['bbox']
+            self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 for out_polarisation in processed_graphs:
