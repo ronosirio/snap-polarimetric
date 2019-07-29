@@ -193,6 +193,18 @@ def test_generate_snap_graph(fixture_mainclass, safe_file):
     assert path_to_manifest.endswith(expected_substring)
 
 
+def test_check_coordinate(fixture_mainclass):
+    """
+    This method checks whether the correct latitude will be chosen. It is then used for selecting
+    relevant Digital Elevation Model inside the .xml file.
+    """
+    bbox_1 = [-110.568535, 67.500465, -96.790337, 72.47541]
+    bbox_2 = [9.94, -55.13, 9.97, -55.15]
+
+    assert fixture_mainclass.check_coordinate(bbox_1) == 72.47541
+    assert fixture_mainclass.check_coordinate(bbox_2) == -55.15
+
+
 @patch('os.system', lambda x: 0)
 # pylint: disable=redefined-outer-name
 def test_process_snap(fixture_mainclass, safe_file):
