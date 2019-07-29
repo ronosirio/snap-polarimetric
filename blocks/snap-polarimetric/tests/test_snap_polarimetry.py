@@ -193,7 +193,7 @@ def test_generate_snap_graph(fixture_mainclass, safe_file):
     assert path_to_manifest.endswith(expected_substring)
 
 
-def test_check_coordinate(fixture_mainclass):
+def test_extract_relevant_coordinate(fixture_mainclass):
     """
     This method checks whether the correct latitude will be chosen. It is then used for selecting
     relevant Digital Elevation Model inside the .xml file.

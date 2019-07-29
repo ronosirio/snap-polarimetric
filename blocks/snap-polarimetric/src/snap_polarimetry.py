@@ -187,7 +187,7 @@ class SNAPPolarimetry:
             tree.write(dst)
 
     @staticmethod
-    def check_coordinate(coor):
+    def extract_relevant_coordinate(coor):
         """
         This method checks for the maximum (minimum) latitude
         for the Northern (Southern) Hemisphere.Then this latitude
@@ -199,6 +199,14 @@ class SNAPPolarimetry:
         if coor[1] and coor[3] > 0:
             relevant_coor = max(coor[1], coor[3])
         return relevant_coor
+
+    def assert_dem(self, coor):
+        """
+        This method makes sure the correct DEM is been used at .xml file
+        """
+        r_c = self.extract_relevant_coordinate(coor)
+        if not -56.0 < r_c < 60.0:
+            self.replace_dem()
 
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
@@ -246,9 +254,7 @@ class SNAPPolarimetry:
         processed_graphs: List = []
         for in_feature in metadata.get("features"):
             coordinate = in_feature['bbox']
-            r_c = self.check_coordinate(coordinate)
-            if not -56.0 < r_c < 60.0:
-                self.replace_dem()
+            self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 for out_polarisation in processed_graphs:
