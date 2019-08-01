@@ -209,7 +209,7 @@ class SNAPPolarimetry:
         r_c = self.extract_relevant_coordinate(coor)
         if not -56.0 < r_c < 60.0:
             self.replace_dem()
-            LOGGER.info("The correct DEM has be replaced.")
+            LOGGER.info("SRTM is been replace by ASTER GDEM.")
 
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
