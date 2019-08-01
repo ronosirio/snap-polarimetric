@@ -17,7 +17,7 @@ import rasterio
 
 from helper import (load_params, load_metadata,
                     ensure_data_directories_exist, save_metadata, get_logger,
-                    SENTINEL1_L1C_GRD, SNAP_POLARIMETRIC)
+                    read_write_bigtiff, SENTINEL1_L1C_GRD, SNAP_POLARIMETRIC)
 from capabilities import set_capability
 
 LOGGER = get_logger(__name__)
@@ -334,22 +334,8 @@ class SNAPPolarimetry:
         This method combines all the .tiff files with different polarization into one .tiff file.
         Then it renames and relocated the final output in the right directory.
         """
-        init_output = "%s%s.tif" % (output_filepath, list_pol[0])
-
-        # Read metadata of first file
-        with rasterio.open(init_output) as src0:
-            meta = src0.profile
-
-        # Update meta to reflect the number of layers
-        meta.update(count=len(list_pol), compress='lzw')
-
         LOGGER.info("Writing started.")
-        # Read each layer and write it to stack
-        with rasterio.open("%s%s.tif" % (output_filepath, "stack"), 'w', **meta) as dst:
-            for i_d, layer in enumerate(list_pol, start=1):
-                with rasterio.open("%s%s.tif" % (output_filepath, layer)) as src1:
-                    dst.write_band(i_d, src1.read(1))
-                    dst.set_band_description(i_d, layer)
+        read_write_bigtiff(output_filepath, list_pol)
         LOGGER.info("Writing is finished.")
         for pol in list_pol:
             Path(output_filepath).joinpath("%s.tif" % pol).unlink()

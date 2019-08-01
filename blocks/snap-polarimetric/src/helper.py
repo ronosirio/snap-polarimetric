@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import logging
+import rasterio
 from geojson import FeatureCollection, Feature
 
 
@@ -73,3 +74,29 @@ def save_metadata(result: FeatureCollection):
     ensure_data_directories_exist()
     with Path('/tmp/output/data.json').open(mode='w') as f_p:
         f_p.write(json.dumps(result))
+
+
+def read_write_bigtiff(out_path, pol):
+    """
+    This method is a proper way to read big GeoTIFF raster data.
+    """
+    with rasterio.Env():
+        with rasterio.open("%s%s.tif" % (out_path, pol[0])) as src0:
+            kwargs = src0.profile
+            kwargs.update(
+                bigtiff='YES'  # Output will be larger than 4GB
+            )
+
+            windows = src0.block_windows(1)
+
+            with rasterio.open(
+                    "%s%s.tif" % (out_path, "stack"),
+                    'w',
+                    **kwargs) as dst:
+                for b_id, layer in enumerate(pol, start=1):
+                    src = rasterio.open("%s%s.tif" % (out_path, layer))
+                    for _, window in windows:
+
+                        src_data = src.read(1, window=window)
+                        dst.write_band(b_id, src_data, window=window)
+                        dst.set_band_description(b_id, layer)
