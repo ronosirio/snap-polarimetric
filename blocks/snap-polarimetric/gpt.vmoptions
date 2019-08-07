@@ -3,10 +3,9 @@
 # -Xmx512m
 # To include another file, uncomment the following line:
 # -include-options [path to other .vmoption file]
--Xmx11G
 
-# -Xmx9G
-# -Xms9G
-# -XX:+UseConcMarkSweepGC
-# -XX:+CrashOnOutOfMemoryError
-# -XX:+AggressiveOpts
+ -Xmx11G
+ -Xms11G
+ -XX:+UseConcMarkSweepGC
+ -XX:+CrashOnOutOfMemoryError
+ -XX:+AggressiveOpts

@@ -17,7 +17,7 @@ import rasterio
 
 from helper import (load_params, load_metadata,
                     ensure_data_directories_exist, save_metadata, get_logger,
-                    SENTINEL1_L1C_GRD, SNAP_POLARIMETRIC)
+                    read_write_bigtiff, SENTINEL1_L1C_GRD, SNAP_POLARIMETRIC)
 from capabilities import set_capability
 
 LOGGER = get_logger(__name__)
@@ -126,8 +126,10 @@ class SNAPPolarimetry:
 
         if self.params['mask'] is None:
             self.revise_graph_xml(dst)
+            LOGGER.info("No masking.")
         if self.params['tcorrection'] == 'false':
             self.revise_graph_xml(dst)
+            LOGGER.info("No terrain correction.")
 
         file_pointer = open(dst)
         template = Template(file_pointer.read())
@@ -207,6 +209,7 @@ class SNAPPolarimetry:
         r_c = self.extract_relevant_coordinate(coor)
         if not -56.0 < r_c < 60.0:
             self.replace_dem()
+            LOGGER.info("SRTM is been replace by ASTER GDEM.")
 
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
@@ -257,6 +260,7 @@ class SNAPPolarimetry:
             self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
+                LOGGER.info("SNAP processing is finished!")
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
                     out_feature = copy.deepcopy(in_feature)
@@ -330,21 +334,9 @@ class SNAPPolarimetry:
         This method combines all the .tiff files with different polarization into one .tiff file.
         Then it renames and relocated the final output in the right directory.
         """
-        init_output = "%s%s.tif" % (output_filepath, list_pol[0])
-
-        # Read metadata of first file
-        with rasterio.open(init_output) as src0:
-            meta = src0.meta
-
-        # Update meta to reflect the number of layers
-        meta.update(count=len(list_pol))
-
-        # Read each layer and write it to stack
-        with rasterio.open("%s%s.tif" % (output_filepath, "stack"), 'w', **meta) as dst:
-            for i_d, layer in enumerate(list_pol, start=1):
-                with rasterio.open("%s%s.tif" % (output_filepath, layer)) as src1:
-                    dst.write_band(i_d, src1.read(1))
-                    dst.set_band_description(i_d, layer)
+        LOGGER.info("Writing started.")
+        read_write_bigtiff(output_filepath, list_pol)
+        LOGGER.info("Writing is finished.")
         for pol in list_pol:
             Path(output_filepath).joinpath("%s.tif" % pol).unlink()
         # Rename the final output to be consistent with the data id.
