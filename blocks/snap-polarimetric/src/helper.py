@@ -84,7 +84,8 @@ def read_write_bigtiff(out_path, pol):
         with rasterio.open("%s%s.tif" % (out_path, pol[0])) as src0:
             kwargs = src0.profile
             kwargs.update(
-                bigtiff='YES'  # Output will be larger than 4GB
+                bigtiff='YES',  # Output will be larger than 4GB
+                compress='lzw'
             )
 
             windows = src0.block_windows(1)
@@ -96,7 +97,6 @@ def read_write_bigtiff(out_path, pol):
                 for b_id, layer in enumerate(pol, start=1):
                     src = rasterio.open("%s%s.tif" % (out_path, layer))
                     for _, window in windows:
-
                         src_data = src.read(1, window=window)
                         dst.write_band(b_id, src_data, window=window)
                         dst.set_band_description(b_id, layer)
