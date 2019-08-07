@@ -33,13 +33,13 @@ or [virtualenv](https://virtualenv.pypa.io/en/latest/).
 In the case of using virtualenvwrapper do:
 
 ```bash
-mkvirtualenv --python=$(which python3.7) up42-snap
+mkvirtualenv -p $(which python3) up42-snap
 ```
 
 In the case of using virtualenv do:
 
 ````bash
-virtualenv -p $(which python3.7) up42-snap
+virtualenv -p $(which python3) up42-snap
 ````
 
 After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
