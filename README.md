@@ -9,12 +9,23 @@
 * Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
 
 ## Description
-This block takes a Level 1C GRD file and brings it into a format ready for analysis. It is based on ESA's Sentinel Application Platform (SNAP). The applied processing steps are:
+
+This block takes a Level 1C GRD file and brings it into a format ready
+for analysis. It is based on ESA's Sentinel Application Platform
+(SNAP). The applied processing steps are:
+
 * Value conversion to dB
 * Speckle filtering (using a median filter)
 * Creation of a land-sea mask
 * Format conversion to GeoTIFF
 * Apply terrain correction 
+
+
+## Requirements
+
+ 1. [docker](https://docs.docker.com/install/).
+ 2. [GNU make](https://www.gnu.org/software/make/).
+ 3. [Python](https://python.org/downloads): version >= 3.5.
 
 ## Usage
 
@@ -27,20 +38,28 @@ git clone https://github.com/up42/snap-polarimetric.git <directory>
 ``` 
 
 then do `cd <directory>`.
+
+
+
+
+
+
 #### Install the required libraries
+
 First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) 
 or [virtualenv](https://virtualenv.pypa.io/en/latest/).
+
 In the case of using virtualenvwrapper do:
 
 ```bash
-mkvirtualenv -p $(which python3) up42-snap
+mkvirtualenv -p $(which python3.7) up42-snap
 ```
 
 In the case of using virtualenv do:
 
-````bash
-virtualenv -p $(which python3) up42-snap
-````
+```bash
+virtualenv -p $(which python3.7) up42-snap
+```
 
 After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
 
@@ -79,12 +98,12 @@ finally you can run the following shell command from the repository that contain
 cd snap-polarimetric/blocks/snap-polarimetric/
 # Build the image.
 docker build -t snap-polarimetric -f Dockerfile . 
-
 ```
+
 In the next step you can use the `params.json` file to define which polarization you want to work
 and whether you want to have land-sea mask or terrain-correction as pre-processing steps. Please note that if you choose to have land-sea mask, you can only set `land` or `sea` as a parameter.
 
-An example of params.json file is shown below:
+You can create an example `params.json` file like this:
 
 ```js
 {
@@ -117,16 +136,10 @@ GeoTIFF
 
 Capabilities
 ------------
-The block takes a ``up42.data.scene.sentinel1_l1c_grd`` product and delivers ``up42.data.aoiclipped`` as output capability.
+The block takes a `up42.data.scene.sentinel1_l1c_grd` product and delivers `up42.data.aoiclipped` as output capability.
 
 ## Related information
 
 http://step.esa.int/main/toolboxes/snap/
 
 
-## TODO
-
- 1. Upgrade the SNAP toolbox to 7.0.0.
- 2. Add Makefile to build block.
- 3. Make ESA SNAP image public?
- 
