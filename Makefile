@@ -1,15 +1,33 @@
-# -*- mode: makefile-gmake -*-
+# -*- mode: makefile-gmake; mode: pabbrev; mode: electric-pair -*-
 include config.mk
 
-DIR=$(CURDIR)
+VALIDATE_ENDPOINT := https://api.up42.com/validate-schema/block
+REGISTRY := registry.up42.com
+CURL := curl
+DOCKER := docker
 
 build-image-esa-snap:
-	docker build -f $(ESA_SNAP_DOCKERFILE) -t up42-esa-snap .
+	$(DOCKER) build -f $(ESA_SNAP_DOCKERFILE) -t up42-esa-snap .
 
-build-image-up42-snap:
-	docker build -f $(UP42_SNAP_DOCKERFILE) -t up42-snap .
+build-image-up42-snap: 
+	$(DOCKER) build -f $(UP42_SNAP_DOCKERFILE) -t up42-snap .
 
-debug:
-	@echo $(ESA_SNAP_DOCKERFILE)
+build: $(MANIFEST_JSON)
+	$(DOCKER) build --build-arg manifest="$$(cat $^)" -f $(UP42_DOCKERFILE) -t $(REGISTRY)/$(UID)/(DOCKER_TAG) .
 
-.PHONY: build-image-esa-nap
+build-all: build-image-esa-snap build-image-up42-snap build
+	@echo "** Success: built all required Docker images."
+
+validate: $(MANIFEST_JSON)
+	$(CURL) -X POST -H 'Content-Type: application/json' -d @$^ $(VALIDATE_ENDPOINT) 
+
+push:	
+	$(DOCKER) push $(REGISTRY)/$(UID)/$(DOCKER_TAG)
+
+login:
+	$(DOCKER) login -u $(USER) https://$(REGISTRY)
+
+run: $(JOB_CONFIG) build-all
+	$(DOCKER) run $(DOCKER_RUN_OPTIONS) $(DOCKER_TAG) 
+
+.PHONY: build-image-esa-snap build-image-up42-snap build build-all login push run
