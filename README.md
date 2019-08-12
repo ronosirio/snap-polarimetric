@@ -90,7 +90,7 @@ An example of params.json file is shown below:
 {
   "polarisations": ["VV"],
   "mask": ["sea"],
-  "tcorrection": "false"
+  "tcorrection": false
 }
 ```
 
