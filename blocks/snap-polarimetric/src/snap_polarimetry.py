@@ -127,7 +127,7 @@ class SNAPPolarimetry:
         if self.params['mask'] is None:
             self.revise_graph_xml(dst)
             LOGGER.info("No masking.")
-        if self.params['tcorrection'] == 'false':
+        if self.params['tcorrection'] is False:
             self.revise_graph_xml(dst)
             LOGGER.info("No terrain correction.")
 
@@ -320,7 +320,7 @@ class SNAPPolarimetry:
                     params[0].attrib['refid'] = all_nodes[index - 1].attrib['id']
             tree.write(xml_file)
 
-        if self.params['tcorrection'] == 'false':
+        if self.params['tcorrection'] is False:
             for index, _ in enumerate(all_nodes):
                 if all_nodes[index].attrib['id'] == 'Terrain-Correction':
                     root.remove(all_nodes[index])
