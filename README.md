@@ -10,16 +10,27 @@
 
 ## Description
 
-This block takes a Level 1C GRD file and brings it into a format ready
-for analysis. It is based on ESA's Sentinel Application Platform
+This repository contains the code implementing a
+[block](https://docs.up42.com/getting-started/core-concepts.html#blocks)
+in [UP42](https://up42.com) that performs
+[polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
+processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
+with [processing Level 1C
+](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
+and **G**round **R**ange **D**etection (GRD) &mdash: geo-referenced.
+
+### Inputs & outputs
+
+This block takes as input a Level 1C GRD file and brings it into a format ready
+for analysis. It is based on ESA's 
+[**S**e**N**tinel **A**pplication **P**latform](http://step.esa.int/main/toolboxes/snap/)
 (SNAP). The applied processing steps are:
 
-* Value conversion to dB
-* Speckle filtering (using a median filter)
-* Creation of a land-sea mask
-* Format conversion to GeoTIFF
-* Apply terrain correction 
-
+ * Value conversion: linear to dB. 
+ * Speckle filtering (using a median filter).
+ * Creation of a land-sea mask.
+ * Format conversion to GeoTIFF.
+ * Apply terrain correction. 
 
 ## Requirements
 
@@ -29,20 +40,104 @@ for analysis. It is based on ESA's Sentinel Application Platform
 
 ## Usage
 
-### Local development HOWTO
-
-Clone the repository in a given `<directory>`:
-
+### Clone the repository in a given `<directory>`:
 ```bash
 git clone https://github.com/up42/snap-polarimetric.git <directory>
 ``` 
 
-then do `cd <directory>`.
+### Build the docker images
 
+For building the images you should tag the image such that it can bu
+pushed to the UP42 docker registry, enabling you to run it as a custom
+block. For that you need to pass your user ID (UID) in the `make`
+command.
 
+The quickest way to get that is just to go into the UP42 console and
+copy & paste from the last clipboard that you get at the
+[custom-blocks](https://console.up42.com/custom-blocks) page and after
+clicking on **PUSH a BLOCK to THE PLATFORM**. For example, it will be
+something like:
 
+```bash
+docker push registry.up42.com/<UID>/<image_name>:<tag>
+```
 
+Now you can launch the image building using `make` like this:
 
+```bash
+make build UID=<UID>
+```
+
+You can avoid selecting the exact UID by using `pbpaste` in a Mac (OS
+X) or `xsel --clipboard --output` in Linux and do:
+
+```bash
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/')
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
+```
+
+You can additionaly specifiy a tag for your image:
+
+```bash
+make build UID=<UID> DOCKER_TAG=<docker tag>
+```
+
+if you don't specify the docker tag, it gets the default value of `latest`.
+
+### Push the image to the UP42 registry
+
+You first need to login into the UP42 docker registry.
+
+```bash
+make login USER=me@example.com
+```
+
+where `me@example.com` should be replaced by your username, which is
+the email address you use in UP42.
+
+Now you can finally push the image to the UP42 docker registry:
+
+```bash
+make push UID=<UID>
+```
+
+where `<UID>` is user ID referenced above. Again using the copy &
+pasting on the clipboard.
+
+```bash
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/')
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
+```
+
+Note that if you specified a docker tag when you built the image, you
+need to pass it now to `make`.
+
+```bash
+make push UID=<UID> DOCKER_TAG=<docker tag>
+```
+
+where `<UID>` is user ID referenced above. Again using the copy &
+pasting on the clipboard.
+
+```bash
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
+```
+
+After the image is pushed you should be able to see your custom block
+in the [console](https://console.up42.dev/custom-blocks/) and you can
+now use the block in a workflow.
+
+### Local development HOWTO
 
 #### Install the required libraries
 
