@@ -28,3 +28,4 @@ run: $(JOB_CONFIG) build-all
 	$(DOCKER) run -e UP42_TASK_PARAMETERS="$$(cat $<)" $(DOCKER_RUN_OPTIONS) $(DOCKER_TAG) 
 
 .PHONY: build-image-esa-snap build-image-up42-snap build login push run
+
