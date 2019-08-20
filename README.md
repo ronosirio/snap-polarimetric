@@ -264,6 +264,6 @@ cd snap-polarimetric/blocks/snap-polarimetric/
 ./test.sh
 ```
 
-Now you need to [build](build-the-docker-images) and 
-[run](run-the-processing-block-locally) the block locally.
+Now you need to [build](#build-the-docker-images) and 
+[run](#run-the-processing-block-locally) the block locally.
 
