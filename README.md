@@ -18,17 +18,6 @@ processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/rada
 with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
 and **G**round **R**ange **D**etection (GRD) &mdash: geo-referenced.
 
-
-This block takes a Level 1C GRD file and brings it into a format ready
-for analysis. It is based on ESA's Sentinel Application Platform
-(SNAP). The applied processing steps are:
-
-* Value conversion to dB
-* Speckle filtering (using a median filter)
-* Creation of a land-sea mask
-* Format conversion to GeoTIFF
-* Apply terrain correction 
-
 ### Inputs & outputs
 
 This block takes as input a Level 1C GRD file and brings it into a format ready
