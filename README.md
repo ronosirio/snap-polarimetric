@@ -169,7 +169,8 @@ where:
 + `<array polarizations>`: JS array of possible polarizations: `"VV"`,
   `"VH"`, `"HV"`, `"HH"`. 
 + `<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
-+ `<boolean>`: `true` or `false` stating if terrain correction is to be done.
++ `<boolean>`: `true` or `false` stating if terrain correction is to
+  be done or not.
 
 Here is an example `params.json`:
 
