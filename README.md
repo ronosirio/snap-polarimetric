@@ -34,7 +34,8 @@ for analysis. It is based on ESA's Sentinel Application Platform
 
  1. [docker](https://docs.docker.com/install/).
  2. [GNU make](https://www.gnu.org/software/make/).
- 3. [Python](https://python.org/downloads): version >= 3.5.
+ 3. [Python](https://python.org/downloads): version >= 3.7 &mdash only
+    for [local](#local-development). 
 
 ### Inputs & outputs
 
@@ -199,7 +200,7 @@ Here is an example `params.json`:
 #### Get the data
 
 A image is needed for the block to run. Such image can be obtained by
-creating a workflow with a single **Sentinel 1 L1C GRD ** data block
+creating a workflow with a single **Sentinel 1 L1C GRD** data block
 and download the the result.
 
 Then create the directory `/tmp/e2e_snap_polarimetric/`:
@@ -251,7 +252,7 @@ cd snap-polarimetric/blocks/snap-polarimetric/
 ./setup.sh
 ```
 
-### Run the tests
+#### Run the tests
 
 This project uses [pytest](https://docs.pytest.org/en/latest/) for
 testing.  To run the tests, first create two empty `/tmp/input/` and
