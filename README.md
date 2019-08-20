@@ -166,10 +166,10 @@ parameters specific to this block. Create a  `params.json` like this:
 ```
 where:
 
-`<array polarizations>`: JS array of possible polarizations: `"VV"`,
-`"VH"`, `"HV"`, `"HH"`. 
-`<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
-`<boolean>`: `true` or `false` stating if terrain correction is to be done.
++ `<array polarizations>`: JS array of possible polarizations: `"VV"`,
+  `"VH"`, `"HV"`, `"HH"`. 
++ `<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
++ `<boolean>`: `true` or `false` stating if terrain correction is to be done.
 
 Here is an example `params.json`:
 
