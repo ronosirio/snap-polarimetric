@@ -18,7 +18,7 @@ processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/rada
 with [processing Level 1C
 ](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
 and **G**round **R**ange **D**etection (GRD) &mdash: geo-referenced.
-=======
+
 
 This block takes a Level 1C GRD file and brings it into a format ready
 for analysis. It is based on ESA's Sentinel Application Platform
