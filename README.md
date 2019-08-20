@@ -232,8 +232,7 @@ virtualenv -p $(which python3.7) up42-snap
 After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
 
 ```bash
-cd snap-polarimetric/blocks/snap-polarimetric/
-./setup.sh
+make install
 ```
 
 #### Run the tests
@@ -244,8 +243,7 @@ testing.  To run the tests, first create two empty `/tmp/input/` and
 `/tmp/output/` directory.  Finally, to run the test do as following:
 
 ```bash
-cd snap-polarimetric/blocks/snap-polarimetric/
-./test.sh
+make test
 ```
 
 Now you need to [build](#build-the-docker-images) and 

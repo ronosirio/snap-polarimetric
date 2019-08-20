@@ -24,6 +24,11 @@ push:
 login:
 	$(DOCKER) login -u $(USER) https://$(REGISTRY)
 
+install:
+	cd $(SRC) && ./setup.sh && cd $(CURDIR)
+test: 
+	cd $(SRC) && ./test.sh && cd $(CURDIR)
+
 run: $(JOB_CONFIG) build-all
 	$(DOCKER) run -e UP42_TASK_PARAMETERS="$$(cat $<)" $(DOCKER_RUN_OPTIONS) $(DOCKER_TAG) 
 
