@@ -15,8 +15,7 @@ This repository contains the code implementing a
 in [UP42](https://up42.com) that performs
 [polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
 processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
-with [processing Level 1C
-](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
+with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
 and **G**round **R**ange **D**etection (GRD) &mdash: geo-referenced.
 
 
