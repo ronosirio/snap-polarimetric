@@ -5,7 +5,7 @@
 * Block type: processing (data preparation)
 * Supported input types:
   * Sentinel1_l1c_grd (Sentinel 1 L1C GRD in SAFE format)
-* Provider: Up42
+* Provider: UP42
 * Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
 
 ## Description
@@ -16,7 +16,7 @@ in [UP42](https://up42.com) that performs
 [polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
 processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
 with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash: geo-referenced.
+and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
 
 ### Inputs & outputs
 
