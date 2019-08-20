@@ -35,7 +35,7 @@ for analysis. It is based on ESA's Sentinel Application Platform
  1. [docker](https://docs.docker.com/install/).
  2. [GNU make](https://www.gnu.org/software/make/).
  3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
-    for [local](#local-development). 
+    for [local development](#local-development). 
 
 ### Inputs & outputs
 
