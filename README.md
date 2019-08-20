@@ -59,11 +59,12 @@ and delivers `up42.data.aoiclipped` as output capability.
 
 ## Usage
 
-### Clone the repository in a given `<directory>`
+### Clone the repository
 
 ```bash
 git clone https://github.com/up42/snap-polarimetric.git <directory>
 ``` 
+where `<directory>` is the directory where the cloning is done.
 
 ### Build the docker images
 
