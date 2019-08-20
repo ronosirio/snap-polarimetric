@@ -154,8 +154,9 @@ now use the block in a workflow.
 
 #### Configure the job
 
-To run the image locally you need first to configure the job with the
-parameters specific to this block. Create a  `params.json` like this:
+To run the docker image locally you need first to configure the job
+with the parameters specific to this block. Create a `params.json`
+like this:
 
 ```js
 {
@@ -183,9 +184,9 @@ Here is an example `params.json`:
 ```
 #### Get the data
 
-A image is needed for the block to run. Such image can be obtained by
-creating a workflow with a single **Sentinel 1 L1C GRD** data block
-and download the the result.
+A radar image is needed for the block to run. Such image can be
+obtained by creating a workflow with a single **Sentinel 1 L1C GRD**
+data block and download the the result.
 
 Then create the directory `/tmp/e2e_snap_polarimetric/`:
 
@@ -204,7 +205,7 @@ tar -C /tmp/e2e_snap_polarimetric -zxvf <downloaded tarball>
 make run
 ```
  
-If set a custom dpcker tag then the command ro run the block is:
+If set a custom docker tag then the command ro run the block is:
 
 ```bash
 make run DOCKER_TAG=<docker tag>
