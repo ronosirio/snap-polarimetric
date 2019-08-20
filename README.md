@@ -29,14 +29,6 @@ for analysis. It is based on ESA's Sentinel Application Platform
 * Format conversion to GeoTIFF
 * Apply terrain correction 
 
-
-## Requirements
-
- 1. [docker](https://docs.docker.com/install/).
- 2. [GNU make](https://www.gnu.org/software/make/).
- 3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
-    for [local development](#local-development). 
-
 ### Inputs & outputs
 
 This block takes as input a Level 1C GRD file and brings it into a format ready
@@ -62,7 +54,8 @@ and delivers `up42.data.aoiclipped` as output capability.
 
  1. [docker](https://docs.docker.com/install/).
  2. [GNU make](https://www.gnu.org/software/make/).
- 3. [Python](https://python.org/downloads): version >= 3.5.
+ 3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
+    for [local development](#local-development). 
 
 ## Usage
 
