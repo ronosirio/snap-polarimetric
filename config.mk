@@ -1,4 +1,3 @@
-# -*- mode: makefile-gmake ; mode: pabbrev; mode: electric-pair -*-
 ## Configuration for Makefile.
 SRC := blocks/snap-polarimetric
 MANIFEST_JSON := $(SRC)/UP42Manifest.json
