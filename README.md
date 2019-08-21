@@ -250,3 +250,9 @@ make test
 Now you need to [build](#build-the-docker-images) and 
 [run](#run-the-processing-block-locally) the block locally.
 
+## Support
+  
+ 1. Open an issue here.
+ 2. Reach out to us on
+      [gitter](https://gitter.im/up42-com/community).
+ 3. Mail us [support@up42.com](mailto:support@up42.com).
