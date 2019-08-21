@@ -5,86 +5,175 @@
 * Block type: processing (data preparation)
 * Supported input types:
   * Sentinel1_l1c_grd (Sentinel 1 L1C GRD in SAFE format)
-* Provider: Up42
+* Provider: UP42
 * Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
 
 ## Description
-This block takes a Level 1C GRD file and brings it into a format ready for analysis. It is based on ESA's Sentinel Application Platform (SNAP). The applied processing steps are:
-* Value conversion to dB
-* Speckle filtering (using a median filter)
-* Creation of a land-sea mask
-* Format conversion to GeoTIFF
-* Apply terrain correction 
+
+This repository contains the code implementing a
+[block](https://docs.up42.com/getting-started/core-concepts.html#blocks)
+in [UP42](https://up42.com) that performs
+[polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
+processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
+with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
+and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
+
+### Inputs & outputs
+
+This block takes as input a Level 1C GRD file and brings it into a format ready
+for analysis. It is based on ESA's 
+[**S**e**N**tinel **A**pplication **P**latform](http://step.esa.int/main/toolboxes/snap/)
+(SNAP). The applied processing steps are:
+
+ * Value conversion: linear to dB. 
+ * Speckle filtering (using a median filter).
+ * Creation of a land-sea mask.
+ * Format conversion to GeoTIFF.
+ * Apply terrain correction. 
+
+The output is a [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file.
+
+### Block capabilities
+
+The block takes a `up42.data.scene.sentinel1_l1c_grd` input
+[capability](https://docs.up42.com/specifications/capabilities.html)
+and delivers `up42.data.aoiclipped` as output capability.
+
+## Requirements
+
+ 1. [docker](https://docs.docker.com/install/).
+ 2. [GNU make](https://www.gnu.org/software/make/).
+ 3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
+    for [local development](#local-development). 
 
 ## Usage
 
-### Local development HOWTO
-
-Clone the repository in a given `<directory>`:
+### Clone the repository
 
 ```bash
 git clone https://github.com/up42/snap-polarimetric.git <directory>
 ``` 
+where `<directory>` is the directory where the cloning is done.
 
-then do `cd <directory>`.
-#### Install the required libraries
-First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) 
-or [virtualenv](https://virtualenv.pypa.io/en/latest/).
-In the case of using virtualenvwrapper do:
+### Build the docker images
+
+For building the images you should tag the image such that it can bu
+pushed to the UP42 docker registry, enabling you to run it as a custom
+block. For that you need to pass your user ID (UID) in the `make`
+command.
+
+The quickest way to get that is just to go into the UP42 console and
+copy & paste from the last clipboard that you get at the
+[custom-blocks](https://console.up42.com/custom-blocks) page and after
+clicking on **PUSH a BLOCK to THE PLATFORM**. For example, it will be
+something like:
 
 ```bash
-mkvirtualenv --python=$(which python3.7) up42-snap
+docker push registry.up42.com/<UID>/<image_name>:<tag>
 ```
 
-In the case of using virtualenv do:
-
-````bash
-virtualenv -p $(which python3.7) up42-snap
-````
-
-After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
+Now you can launch the image building using `make` like this:
 
 ```bash
-cd snap-polarimetric/blocks/snap-polarimetric/
-./setup.sh
+make build UID=<UID>
 ```
 
-### Run the tests
-
-This project uses [pytest](https://docs.pytest.org/en/latest/) for testing.
-To run the tests, first create two empty `/tmp/input/` and `/tmp/output` directories. The output will be written to the `/tmp/output/` directory.
-Finally, to run the test do as following:
+You can avoid selecting the exact UID by using `pbpaste` in a Mac (OS
+X) or `xsel --clipboard --output` in Linux and do:
 
 ```bash
-cd snap-polarimetric/blocks/snap-polarimetric/
-./test.sh
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/')
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
 ```
 
-### Build and run the docker image locally
-
-To build the Docker image for local using, first you need to create two local images as follow:
-
-```bash
-cd snap-polarimetric/blocks/snap-polarimetric/libs
-docker build -f Dockerfile-esa-snap -t up42-esa-snap:latest .
-docker build -f Dockerfile-up42-snap -t up42-snap:latest .
-``` 
-
-Note that the second command above, creates a base image with the newest version of SNAP. The third command creates the second
-image which has the necessary installation of python 3.7 and then it will be used in the main Dockerfile located in `snap-polarimetric/blocks/snap-polarimetric/`.
-
-finally you can run the following shell command from the repository that contains the Dockerfile: 
+You can additionaly specifiy a custom tag for your image (default tag
+is `snap-polarimetric:latest`):
 
 ```bash
-cd snap-polarimetric/blocks/snap-polarimetric/
-# Build the image.
-docker build -t snap-polarimetric -f Dockerfile . 
-
+make build UID=<UID> DOCKER_TAG=<docker tag>
 ```
-In the next step you can use the `params.json` file to define which polarization you want to work
-and whether you want to have land-sea mask or terrain-correction as pre-processing steps. Please note that if you choose to have land-sea mask, you can only set `land` or `sea` as a parameter.
 
-An example of params.json file is shown below:
+if you don't specify the docker tag, it gets the default value of `latest`.
+
+### Push the image to the UP42 registry
+
+You first need to login into the UP42 docker registry.
+
+```bash
+make login USER=me@example.com
+```
+
+where `me@example.com` should be replaced by your username, which is
+the email address you use in UP42.
+
+Now you can finally push the image to the UP42 docker registry:
+
+```bash
+make push UID=<UID>
+```
+
+where `<UID>` is user ID referenced above. Again using the copy &
+pasting on the clipboard.
+
+```bash
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/')
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
+```
+```bash
+make push UID=<UID>
+```
+Note that if you specified a custom docker tag when you built the image, you
+need to pass it now to `make`.
+
+```bash
+make push UID=<UID> DOCKER_TAG=<docker tag>
+```
+
+where `<UID>` is user ID referenced above. Again using the copy &
+pasting on the clipboard.
+
+```bash
+# mac: OS X.
+make build UID=$(pbpaste | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
+
+# Linux.
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
+```
+
+After the image is pushed you should be able to see your custom block
+in the [console](https://console.up42.dev/custom-blocks/) and you can
+now use the block in a workflow.
+
+### Run the processing block locally
+
+#### Configure the job
+
+To run the docker image locally you need first to configure the job
+with the parameters specific to this block. Create a `params.json`
+like this:
+
+```js
+{
+  "polarisations": <array polarizations>,
+  "mask": <array mask type>,
+  "tcorrection": <boolean>
+}
+```
+where:
+
++ `<array polarizations>`: JS array of possible polarizations: `"VV"`,
+  `"VH"`, `"HV"`, `"HH"`. 
++ `<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
++ `<boolean>`: `true` or `false` stating if terrain correction is to
+  be done or not.
+
+Here is an example `params.json`:
 
 ```js
 {
@@ -93,40 +182,77 @@ An example of params.json file is shown below:
   "tcorrection": false
 }
 ```
+#### Get the data
 
-#### Run the processing block
+A radar image is needed for the block to run. Such image can be
+obtained by creating a workflow with a single **Sentinel 1 L1C GRD**
+data block and download the the result.
 
- * To run an end-to-end test locally you first need to download a Sentinel-1 dataset from the UP42 platform. Run a job
- with the `Sentinel-1 L1C GRD Full Scenes` block and download its result. Copy the result (both the folder as well as
- data.json) into a new directory with the name `/tmp/e2e_snap_polarimetric/`.
- * Build the docker image as outlined above.
- * Run the following command: 
- 
+Then create the directory `/tmp/e2e_snap_polarimetric/`:
+
 ```bash
- docker run -e UP42_TASK_PARAMETERS="$(cat params.json)" --mount type=bind,src=/tmp/e2e_snap_polarimetric/output,dst=/tmp/output --mount type=bind,src=/tmp/e2e_snap_polarimetric/input,dst=/tmp/input snap-polarimetric:latest
+mkdir /tmp/e2e_snap_polarimetric
 ```
 
-This [bind mounts](https://docs.docker.com/storage/bind-mounts/) the
-host and container `/tmp/e2e_snap_polarimetric/input` and `/tmp/e2e_snap_polarimetric/output` directories into the
-**input** and **output** directories respectively. If you wish you can
-set it to some other directory that is convenient to you.
+Now untar the tarball with the result in that directory:
+
+```bash
+tar -C /tmp/e2e_snap_polarimetric -zxvf <downloaded tarball>
+```
+#### Run the block
+
+```bash
+make run
+```
  
-Output format
--------------
-GeoTIFF
+If set a custom docker tag then the command ro run the block is:
 
-Capabilities
-------------
-The block takes a ``up42.data.scene.sentinel1_l1c_grd`` product and delivers ``up42.data.aoiclipped`` as output capability.
+```bash
+make run DOCKER_TAG=<docker tag>
+```
 
-## Related information
-
-http://step.esa.int/main/toolboxes/snap/
-
-
-## TODO
-
- 1. Upgrade the SNAP toolbox to 7.0.0.
- 2. Add Makefile to build block.
- 3. Make ESA SNAP image public?
+### Local development
  
+#### Install the required libraries
+
+First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) 
+or [virtualenv](https://virtualenv.pypa.io/en/latest/).
+
+In the case of using virtualenvwrapper do:
+
+```bash
+mkvirtualenv -p $(which python3.7) up42-snap
+```
+
+In the case of using virtualenv do:
+
+```bash
+virtualenv -p $(which python3.7) up42-snap
+```
+
+After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
+
+```bash
+make install
+```
+
+#### Run the tests
+
+This project uses [pytest](https://docs.pytest.org/en/latest/) for
+testing.  To run the tests, first create two empty `/tmp/input/` and
+`/tmp/output` directories. The output will be written to the
+`/tmp/output/` directory.  Finally, to run the test do as following:
+
+```bash
+make test
+```
+
+Now you need to [build](#build-the-docker-images) and 
+[run](#run-the-processing-block-locally) the block locally.
+
+## Support
+  
+ 1. Open an issue here.
+ 2. Reach out to us on
+      [gitter](https://gitter.im/up42-com/community).
+ 3. Mail us [support@up42.com](mailto:support@up42.com).
