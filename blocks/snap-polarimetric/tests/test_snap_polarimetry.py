@@ -251,3 +251,8 @@ def test_process_multiple_polarisations(fixture_mainclass, safe_file):
     assert output_fc.features[0]["properties"]["up42.data.aoiclipped"] != ""
     assert output_fc.features[1]["bbox"] == expected_bbox
     assert output_fc.features[1]["properties"]["up42.data.aoiclipped"] != ""
+
+    assert Path('/tmp/output/' +\
+                output_fc.features[0]["properties"]["up42.data.aoiclipped"]).is_file()
+    assert Path('/tmp/output/' +\
+                output_fc.features[1]["properties"]["up42.data.aoiclipped"]).is_file()
