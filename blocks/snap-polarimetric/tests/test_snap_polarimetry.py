@@ -183,7 +183,7 @@ def test_generate_snap_graph(fixture_mainclass, safe_file):
         if graph_node.attrib['id'] == 'Read':
 
             params = graph_node.find("parameters")
-            subnodes = [snode for snode in params]
+            subnodes = list(params)
             path_to_manifest = subnodes[0].text
 
     expected_substring = \
