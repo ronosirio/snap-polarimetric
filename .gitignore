@@ -6,3 +6,5 @@ __pycache__
 *.pyc
 .mypy_cache
 .coverage
+up42-snap
+.ropeproject
