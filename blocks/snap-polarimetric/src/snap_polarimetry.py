@@ -274,7 +274,7 @@ class SNAPPolarimetry:
 
                     set_capability(out_feature,
                                    SNAP_POLARIMETRIC,
-                                   processed_tif_uuid+".tif")
+                                   processed_tif_uuid+out_polarisation+".tif")
 
                     results.append(out_feature)
 
