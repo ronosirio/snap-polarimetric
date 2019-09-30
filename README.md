@@ -21,15 +21,15 @@ and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
 ### Inputs & outputs
 
 This block takes as input a Level 1C GRD file and brings it into a format ready
-for analysis. It is based on ESA's 
+for analysis. It is based on ESA's
 [**S**e**N**tinel **A**pplication **P**latform](http://step.esa.int/main/toolboxes/snap/)
 (SNAP). The applied processing steps are:
 
- * Value conversion: linear to dB. 
+ * Value conversion: linear to dB.
  * Speckle filtering (using a median filter).
  * Creation of a land-sea mask.
  * Format conversion to GeoTIFF.
- * Apply terrain correction. 
+ * Apply terrain correction.
 
 The output is a [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file.
 
@@ -44,7 +44,7 @@ and delivers `up42.data.aoiclipped` as output capability.
  1. [docker](https://docs.docker.com/install/).
  2. [GNU make](https://www.gnu.org/software/make/).
  3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
-    for [local development](#local-development). 
+    for [local development](#local-development).
 
 ## Usage
 
@@ -52,7 +52,7 @@ and delivers `up42.data.aoiclipped` as output capability.
 
 ```bash
 git clone https://github.com/up42/snap-polarimetric.git <directory>
-``` 
+```
 where `<directory>` is the directory where the cloning is done.
 
 ### Build the docker images
@@ -86,7 +86,7 @@ X) or `xsel --clipboard --output` in Linux and do:
 make build UID=$(pbpaste | cut -f 2 -d '/')
 
 # Linux.
-make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/')
 ```
 
 You can additionaly specifiy a custom tag for your image (default tag
@@ -123,7 +123,7 @@ pasting on the clipboard.
 make build UID=$(pbpaste | cut -f 2 -d '/')
 
 # Linux.
-make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') 
+make build UID=$(xsel --clipboard --output | cut -f 2 -d '/')
 ```
 ```bash
 make push UID=<UID>
@@ -168,7 +168,7 @@ like this:
 where:
 
 + `<array polarizations>`: JS array of possible polarizations: `"VV"`,
-  `"VH"`, `"HV"`, `"HH"`. 
+  `"VH"`, `"HV"`, `"HH"`.
 + `<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
 + `<boolean>`: `true` or `false` stating if terrain correction is to
   be done or not.
@@ -204,18 +204,18 @@ tar -C /tmp/e2e_snap_polarimetric -zxvf <downloaded tarball>
 ```bash
 make run
 ```
- 
-If set a custom docker tag then the command ro run the block is:
+
+If set a custom docker tag then the command to run the block is:
 
 ```bash
 make run DOCKER_TAG=<docker tag>
 ```
 
 ### Local development
- 
+
 #### Install the required libraries
 
-First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) 
+First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
 or [virtualenv](https://virtualenv.pypa.io/en/latest/).
 
 In the case of using virtualenvwrapper do:
@@ -247,11 +247,20 @@ testing.  To run the tests, first create two empty `/tmp/input/` and
 make test
 ```
 
-Now you need to [build](#build-the-docker-images) and 
+Now you need to [build](#build-the-docker-images) and
 [run](#run-the-processing-block-locally) the block locally.
 
+The e2e tests provided here make sure the blocks output conforms to the platform's
+requirements. Run the e2e tests with:
+```bash
+# WARNING: this test require you set sufficient memory and disk capacity in your
+# docker setup. This tests will take a significant amount of time to complete
+# in a standard machine! Please be patient.
+make e2e
+```
+
 ## Support
-  
+
  1. Open an issue here.
  2. Reach out to us on
       [gitter](https://gitter.im/up42-com/community).
