@@ -132,6 +132,74 @@ def safe_file():
 
     return test_safe_file
 
+@pytest.fixture(scope="session")
+def safe_files():
+    """
+    This method creats two dummy .SAFE files and also dummy outputs
+    after applying pre-processing steps with snap.
+    :return:
+    """
+    # pylint: disable=too-many-locals
+    ensure_data_directories_exist()
+
+    _location_ = os.path.realpath(os.path.join(os.getcwd(),
+                                               os.path.dirname(__file__)))
+
+    with open(os.path.join(_location_, 'mock_data/two_data.json'), "rb") as f_p:
+        test_featurecollection = geojson.load(f_p)
+
+    # Set up the whole dummy input
+    input_path = Path("/tmp/input")
+
+    for feature in test_featurecollection.features:
+        uid = feature.id
+        s1_id = feature.properties['identification']['externalId'] + '.SAFE'
+
+        safe_path = input_path / uid
+        if safe_path.exists():
+            shutil.rmtree(str(safe_path))
+        safe_path.mkdir()
+
+        safe_file_path = safe_path / s1_id
+        safe_file_path.mkdir()
+
+        manifest_path = safe_file_path / "manifest.safe"
+        manifest_path.write_text("")
+
+        measurement_file_path = safe_file_path / "measurement"
+        measurement_file_path.mkdir()
+
+        vh_file = measurement_file_path / Path("s1b-iw-grd-vh-" \
+                                          "%s-002.tiff" % s1_id.lower().replace('_', '-')[17:])
+        vv_file = measurement_file_path / Path("s1b-iw-grd-vv-" \
+                                          "%s-001.tiff" % s1_id.lower().replace('_', '-')[17:])
+
+        vh_file.write_text("")
+        vv_file.write_text("")
+
+        test_fc = DummySafeFile(safe_path, safe_file_path,
+                                manifest_path, measurement_file_path,
+                                vh_file, vv_file, test_featurecollection, feature)
+
+        # set up dummy output files that would be created by snap
+        output_file_vv_before_move = Path("vv.tif")
+        output_file_vv_before_move.write_text("")
+
+        output_file_vh_before_move = Path("vh.tif")
+        output_file_vh_before_move.write_text("")
+
+        out_path = Path("/tmp/output/%s" % uid)
+        if out_path.exists():
+            shutil.rmtree(str(out_path))
+        out_path.mkdir()
+        output_file_vv = out_path / "vv.tif"
+        output_file_vv.write_text("")
+
+        output_file_vh = out_path / "vh.tif"
+        output_file_vh.write_text("")
+
+    return test_fc
+
 
 # pylint: disable=redefined-outer-name
 def test_extract_polarisations(fixture_mainclass, safe_file):
@@ -249,8 +317,25 @@ def test_process_multiple_polarisations(fixture_mainclass, safe_file):
     assert len(output_fc.features) == 1
     assert output_fc.features[0]["bbox"] == expected_bbox
     assert output_fc.features[0]["properties"]["up42.data.aoiclipped"] != ""
-
     assert Path('/tmp/output/' +\
                 output_fc.features[0]["properties"]["up42.data.aoiclipped"]).is_file()
+
+@patch('os.system', lambda x: 0)
+def test_process_multiple_images_polarisations(fixture_mainclass, safe_files):
+    """
+    This method test the functionality of precess method. It checks
+    whether the expected bbox and properties is included in the
+    output.
+    """
+    test_fc = safe_files.feature_collection
+
+    params = {"polarisations": ["VV", "VH"]}
+
+    output_fc, outpath_fc, pol_fc = fixture_mainclass.process(test_fc, params)
+
+    expected_bbox = [13.319549560546875, 38.20473446610163, 13.3209228515625, 38.205813598134746]
+    assert len(output_fc.features) == 2
+    assert output_fc.features[0]["bbox"] == expected_bbox
+    assert output_fc.features[0]["properties"]["up42.data.aoiclipped"] != ""
     assert Path('/tmp/output/' +\
-                output_fc.features[1]["properties"]["up42.data.aoiclipped"]).is_file()
+                output_fc.features[0]["properties"]["up42.data.aoiclipped"]).is_file()
