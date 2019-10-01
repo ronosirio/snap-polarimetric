@@ -246,11 +246,9 @@ def test_process_multiple_polarisations(fixture_mainclass, safe_file):
     output_fc, outpath_fc, pol_fc = fixture_mainclass.process(test_fc, params)
 
     expected_bbox = [13.319549560546875, 38.20473446610163, 13.3209228515625, 38.205813598134746]
-    assert len(output_fc.features) == 2
+    assert len(output_fc.features) == 1
     assert output_fc.features[0]["bbox"] == expected_bbox
     assert output_fc.features[0]["properties"]["up42.data.aoiclipped"] != ""
-    assert output_fc.features[1]["bbox"] == expected_bbox
-    assert output_fc.features[1]["properties"]["up42.data.aoiclipped"] != ""
 
     assert Path('/tmp/output/' +\
                 output_fc.features[0]["properties"]["up42.data.aoiclipped"]).is_file()
