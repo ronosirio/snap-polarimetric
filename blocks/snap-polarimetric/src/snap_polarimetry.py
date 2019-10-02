@@ -252,36 +252,36 @@ class SNAPPolarimetry:
         polarisations: List = params.get("polarisations", ["VV"]) or ["VV"]
 
         results: List[Feature] = []
-        out_path: str = ''
-        processed_graphs: List = []
+        out_dict: dict = {}
         for in_feature in metadata.get("features"):
             coordinate = in_feature['bbox']
             self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 LOGGER.info("SNAP processing is finished!")
+                out_feature = copy.deepcopy(in_feature)
+                processed_tif_uuid = out_feature.properties[SENTINEL1_L1C_GRD]
+                out_path = "/tmp/output/%s/" % (processed_tif_uuid)
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
-                    out_feature = copy.deepcopy(in_feature)
-                    processed_tif_uuid = str(uuid.uuid4())
-                    out_path = "/tmp/output/%s/" % processed_tif_uuid
+                    shutil.copyfile(("%s.tif" % out_polarisation),
+                                    ("%s%s.tif" % (out_path, out_polarisation)))
+                if not os.path.exists(out_path):
                     os.mkdir(out_path)
-                    shutil.move(("%s.tif" % out_polarisation),
-                                ("%s%s.tif" % (out_path, out_polarisation)))
-
-                    del out_feature["properties"][SENTINEL1_L1C_GRD]
-
-                    set_capability(out_feature,
-                                   SNAP_POLARIMETRIC,
-                                   processed_tif_uuid+".tif")
-
-                    results.append(out_feature)
+                del out_feature["properties"][SENTINEL1_L1C_GRD]
+                set_capability(out_feature,
+                               SNAP_POLARIMETRIC,
+                               processed_tif_uuid+".tif")
+                results.append(out_feature)
+                out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
+                                                'pol': processed_graphs,
+                                                'out_path': out_path}
 
             except WrongPolarizationError:
                 continue
 
         Path(__file__).parent.joinpath("template/snap_polarimetry_graph_%s.xml" % "copy").unlink()
-        return FeatureCollection(results), out_path, processed_graphs
+        return FeatureCollection(results), out_dict
 
     @staticmethod
     def post_process(output_filepath, list_pol):
