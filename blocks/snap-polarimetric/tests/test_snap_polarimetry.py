@@ -80,7 +80,7 @@ class DummySafeFile:
     feature = attr.ib()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def safe_file():
     """
     This method creats a dummy .SAFE file and also dummy output
@@ -119,33 +119,32 @@ def safe_file():
     vv_file = measurement_file_path / "s1b-iw-grd-vv-" \
                                       "20190220t050359-20190220t050424-015025-01c12f-001.tiff"
 
-    vh_file.write_text("")
-    vv_file.write_text("")
+    make_dummy_raster_file(vh_file)
+    make_dummy_raster_file(vv_file)
 
     test_safe_file = DummySafeFile(safe_path, safe_file_path,
                                    manifest_path, measurement_file_path,
                                    vh_file, vv_file, test_featurecollection, test_feature)
 
-    # set up dummy output files that would be created by snap
-    output_file_vv_before_move = Path("vv.tif")
-    output_file_vv_before_move.write_text("")
+    output_file_vv_before_move = Path("vv.tif").resolve()
+    make_dummy_raster_file(output_file_vv_before_move)
 
-    output_file_vh_before_move = Path("vh.tif")
-    output_file_vh_before_move.write_text("")
+    output_file_vh_before_move = Path("vh.tif").resolve()
+    make_dummy_raster_file(output_file_vh_before_move)
 
     out_path = Path("/tmp/output/0a99c5a1-75c0-4a0d-a7dc-c2a551936be4")
     if out_path.exists():
         shutil.rmtree(str(out_path))
     out_path.mkdir()
     output_file_vv = out_path / "vv.tif"
-    output_file_vv.write_text("")
+    make_dummy_raster_file(output_file_vv)
 
     output_file_vh = out_path / "vh.tif"
-    output_file_vh.write_text("")
+    make_dummy_raster_file(output_file_vh)
 
     return test_safe_file
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def safe_files():
     """
     This method creats two dummy .SAFE files and also dummy outputs
@@ -187,29 +186,28 @@ def safe_files():
         vv_file = measurement_file_path / Path("s1b-iw-grd-vv-" \
                                           "%s-001.tiff" % s1_id.lower().replace('_', '-')[17:])
 
-        vh_file.write_text("")
-        vv_file.write_text("")
+        make_dummy_raster_file(vh_file)
+        make_dummy_raster_file(vv_file)
 
         test_fc = DummySafeFile(safe_path, safe_file_path,
                                 manifest_path, measurement_file_path,
                                 vh_file, vv_file, test_featurecollection, feature)
 
-        # set up dummy output files that would be created by snap
-        output_file_vv_before_move = Path("vv.tif")
-        output_file_vv_before_move.write_text("")
+        output_file_vv_before_move = Path("vv.tif").resolve()
+        make_dummy_raster_file(output_file_vv_before_move)
 
-        output_file_vh_before_move = Path("vh.tif")
-        output_file_vh_before_move.write_text("")
+        output_file_vh_before_move = Path("vh.tif").resolve()
+        make_dummy_raster_file(output_file_vh_before_move)
 
         out_path = Path("/tmp/output/%s" % uid)
         if out_path.exists():
             shutil.rmtree(str(out_path))
         out_path.mkdir()
         output_file_vv = out_path / "vv.tif"
-        output_file_vv.write_text("")
+        make_dummy_raster_file(output_file_vv)
 
         output_file_vh = out_path / "vh.tif"
-        output_file_vh.write_text("")
+        make_dummy_raster_file(output_file_vh)
 
     return test_fc
 
