@@ -11,6 +11,8 @@ from xml.etree import ElementTree as ET
 
 import attr
 import geojson
+import rasterio as rio
+import numpy as np
 import pytest
 
 # pylint: disable=wrong-import-position
@@ -27,6 +29,16 @@ TEST_POLARISATIONS = [
     (["VV", "VH"], ["VV"], False),
     (["HH"], ["HH", "HV"], True),
 ]
+
+
+def make_dummy_raster_file(path):
+    """
+    Makes a dummy raster file in a given path.
+    """
+    with rio.open(path, 'w', driver='GTiff', width=5, height=5, count=1,
+                  dtype='int16') as dst:
+        dst.write(np.ones((1, 5, 5), dtype='int16'))
+    return path
 
 
 @pytest.fixture(scope="session", autouse=True)
