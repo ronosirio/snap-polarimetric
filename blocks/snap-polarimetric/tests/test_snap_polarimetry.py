@@ -15,7 +15,8 @@ import pytest
 
 # pylint: disable=wrong-import-position
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from context import SNAPPolarimetry, ensure_data_directories_exist
+from context import SNAPPolarimetry, ensure_data_directories_exist,\
+                    SNAP_POLARIMETRIC
 
 TEST_POLARISATIONS = [
     (["VV"], ["VV"], True),
