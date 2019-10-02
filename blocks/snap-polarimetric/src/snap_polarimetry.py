@@ -356,8 +356,9 @@ class SNAPPolarimetry:
         params: dict = load_params()
         input_metadata: FeatureCollection = load_metadata()
         pol_processor = SNAPPolarimetry(params)
-        result, outfile, outfile_pol = pol_processor.process(input_metadata, params)
+        result, out_dict = pol_processor.process(input_metadata, params)
         save_metadata(result)
-        if params['mask'] is not None:
-            pol_processor.post_process(outfile, outfile_pol)
-        pol_processor.rename_final_stack(outfile, outfile_pol)
+        for out_id in out_dict:
+            if params['mask'] is not None:
+                pol_processor.post_process(out_dict[out_id]['out_path'], out_dict[out_id]['pol'])
+            pol_processor.rename_final_stack(out_dict[out_id]['out_path'], out_dict[out_id]['pol'])
