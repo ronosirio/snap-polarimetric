@@ -345,7 +345,7 @@ class SNAPPolarimetry:
         shutil.move("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem),
                     "%s" % Path("%s" % output_filepath).parent)
         # Remove the child directory
-        Path(output_filepath).rmdir()
+        shutil.rmtree(Path(output_filepath))
 
     @staticmethod
     def run():
