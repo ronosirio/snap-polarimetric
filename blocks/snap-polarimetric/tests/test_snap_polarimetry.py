@@ -343,11 +343,69 @@ def test_process_multiple_images_polarisations(fixture_mainclass, safe_files):
 
     params = {"polarisations": ["VV", "VH"]}
 
-    output_fc, outpath_fc, pol_fc = fixture_mainclass.process(test_fc, params)
+    output_fc, out_dict = fixture_mainclass.process(test_fc, params)
 
-    expected_bbox = [13.319549560546875, 38.20473446610163, 13.3209228515625, 38.205813598134746]
+    expected_bbox = [138.196686, 34.809418, 141.303055, 36.713043]
     assert len(output_fc.features) == 2
     assert output_fc.features[0]["bbox"] == expected_bbox
-    assert output_fc.features[0]["properties"]["up42.data.aoiclipped"] != ""
+    assert output_fc.features[0]["properties"][SNAP_POLARIMETRIC] != ""
+    assert not Path('/tmp/output/' +\
+                output_fc.features[0]["properties"][SNAP_POLARIMETRIC]).is_file()
+
+@patch('os.system', lambda x: 0)
+def test_run_multiple_scenes(fixture_mainclass, safe_files):
+    """
+    This method test the functionality of the run method with multiple scenes.
+    """
+
+    # Copy two_data.json to tmp/input/data.json
+    _location_ = os.path.realpath(os.path.join(os.getcwd(),
+                                               os.path.dirname(__file__)))
+    shutil.copyfile(os.path.join(_location_, 'mock_data/two_data.json'),
+                    Path('/tmp/input/data.json'))
+
+    _ = safe_files
+
+    fixture_mainclass.run()
+
+    with open(Path('/tmp/output/data.json'), "rb") as f_p:
+        test_featurecollection = geojson.load(f_p)
+
     assert Path('/tmp/output/' +\
-                output_fc.features[0]["properties"]["up42.data.aoiclipped"]).is_file()
+                test_featurecollection.features[0]["properties"][SNAP_POLARIMETRIC]).is_file()
+    assert Path('/tmp/output/' +\
+                test_featurecollection.features[1]["properties"][SNAP_POLARIMETRIC]).is_file()
+
+    # Clean up if exists
+    if os.path.exists("/tmp/output/"):
+        shutil.rmtree("/tmp/output/")
+    if os.path.exists('/tmp/input/data.json'):
+        os.remove('/tmp/input/data.json')
+
+@patch('os.system', lambda x: 0)
+def test_run_scene(fixture_mainclass, safe_file):
+    """
+    This method test the functionality of the run method with one scene.
+    """
+
+    # Copy two_data.json to tmp/input/data.json
+    _location_ = os.path.realpath(os.path.join(os.getcwd(),
+                                               os.path.dirname(__file__)))
+    shutil.copyfile(os.path.join(_location_, 'mock_data/data.json'),
+                    Path('/tmp/input/data.json'))
+
+    _ = safe_file
+
+    fixture_mainclass.run()
+
+    with open(Path('/tmp/output/data.json'), "rb") as f_p:
+        test_featurecollection = geojson.load(f_p)
+
+    assert Path('/tmp/output/' +\
+                test_featurecollection.features[0]["properties"][SNAP_POLARIMETRIC]).is_file()
+
+    # Clean up if exists
+    if os.path.exists("/tmp/output/"):
+        shutil.rmtree("/tmp/output/")
+    if os.path.exists('/tmp/input/data.json'):
+        os.remove('/tmp/input/data.json')
