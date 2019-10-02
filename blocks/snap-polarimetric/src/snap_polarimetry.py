@@ -8,7 +8,6 @@ from typing import List
 from pathlib import Path
 import shutil
 from string import Template
-import uuid
 import copy
 
 import xml.etree.ElementTree as Et
