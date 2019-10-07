@@ -166,7 +166,7 @@ class SNAPPolarimetry:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
                 'downcase_polarisation': out_file_pol,
-                'upcase_polarisation': polarisation.upper(),
+                'upcase_polarisation': polarisation.upper()
             })
 
         self.target_snap_graph_path(feature, polarisation).write_text(result)
