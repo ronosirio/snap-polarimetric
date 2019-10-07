@@ -22,7 +22,7 @@ if __name__ == "__main__":
     os.system("gsutil cp -r gs://blocks-e2e-testing/e2e_snap_polarimetric/* %s" % INPUT_DIR)
 
     RUN_CMD = """docker run -v %s:/tmp \
-                 -e 'UP42_TASK_PARAMETERS={"mask": null, "tcorrection": true,\
+                 -e 'UP42_TASK_PARAMETERS={"mask": null, "tcorrection": false,\
                     "polarisations": ["VV"]}' \
                   -it snap-polarimetric""" % TEST_DIR
 
