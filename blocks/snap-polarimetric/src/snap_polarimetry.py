@@ -21,7 +21,7 @@ from capabilities import set_capability
 
 LOGGER = get_logger(__name__)
 PARAMS_FILE = os.environ.get("PARAMS_FILE")
-GPT_CMD = "{gpt_path} {graph_xml_path} -e {source_file}"
+GPT_CMD = "{gpt_path} {graph_xml_path} -e {source_file} -t {output_file}"
 
 
 # pylint: disable=unnecessary-pass
@@ -227,10 +227,13 @@ class SNAPPolarimetry:
 
             self.generate_snap_graph(feature, polarisation)
 
+            out_file_pol = "/tmp/input/%s_%s" % (input_file_path.stem, polarisation.lower())
+
             cmd = GPT_CMD.format(
                 gpt_path="gpt",
                 graph_xml_path=self.target_snap_graph_path(feature, polarisation),
-                source_file=input_file_path
+                source_file=input_file_path,
+                output_file=out_file_pol
             )
 
             LOGGER.info("Running SNAP command: %s", cmd)
@@ -241,7 +244,7 @@ class SNAPPolarimetry:
                 LOGGER.error("SNAP did not finish successfully with error code %d", return_value)
                 sys.exit(return_value)
 
-            out_files.append(polarisation.lower())
+            out_files.append(out_file_pol)
 
         return out_files
 
