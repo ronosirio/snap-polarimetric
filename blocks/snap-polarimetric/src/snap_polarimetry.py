@@ -227,6 +227,8 @@ class SNAPPolarimetry:
 
             self.generate_snap_graph(feature, polarisation)
 
+            # Construct output snap processing file path with SAFE id plus polarization
+            # i.e. S1A_IW_GRDH_1SDV_20190928T051659_20190928T051724_029217_035192_D2A2_vv
             out_file_pol = "/tmp/input/%s_%s" % (input_file_path.stem, polarisation.lower())
 
             cmd = GPT_CMD.format(
