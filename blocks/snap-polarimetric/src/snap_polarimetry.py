@@ -267,8 +267,8 @@ class SNAPPolarimetry:
                 out_path = "/tmp/output/%s/" % (processed_tif_uuid)
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
-                    shutil.copyfile(("%s.tif" % out_polarisation),
-                                    ("%s%s.tif" % (out_path, out_polarisation)))
+                    shutil.move(("%s.tif" % out_polarisation),
+                                ("%s%s.tif" % (out_path, out_polarisation.split('_')[-1])))
                 if not os.path.exists(out_path):
                     os.mkdir(out_path)
                 del out_feature["properties"][SENTINEL1_L1C_GRD]
@@ -277,7 +277,7 @@ class SNAPPolarimetry:
                                processed_tif_uuid+".tif")
                 results.append(out_feature)
                 out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
-                                                'pol': processed_graphs,
+                                                'pol': [i.split('_')[-1] for i in processed_graphs],
                                                 'out_path': out_path}
 
             except WrongPolarizationError:
