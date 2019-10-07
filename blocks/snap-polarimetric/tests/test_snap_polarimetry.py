@@ -126,10 +126,10 @@ def safe_file():
                                    manifest_path, measurement_file_path,
                                    vh_file, vv_file, test_featurecollection, test_feature)
 
-    output_file_vv_before_move = Path("vv.tif").resolve()
+    output_file_vv_before_move = Path("/tmp/input/%s_%s.tif" % (safe_file_path.stem, "vv"))
     make_dummy_raster_file(output_file_vv_before_move)
 
-    output_file_vh_before_move = Path("vh.tif").resolve()
+    output_file_vh_before_move = Path("/tmp/input/%s_%s.tif" % (safe_file_path.stem, "vh"))
     make_dummy_raster_file(output_file_vh_before_move)
 
     out_path = Path("/tmp/output/0a99c5a1-75c0-4a0d-a7dc-c2a551936be4")
@@ -193,10 +193,10 @@ def safe_files():
                                 manifest_path, measurement_file_path,
                                 vh_file, vv_file, test_featurecollection, feature)
 
-        output_file_vv_before_move = Path("vv.tif").resolve()
+        output_file_vv_before_move = Path("/tmp/input/%s_%s.tif" % (safe_file_path.stem, "vv"))
         make_dummy_raster_file(output_file_vv_before_move)
 
-        output_file_vh_before_move = Path("vh.tif").resolve()
+        output_file_vh_before_move = Path("/tmp/input/%s_%s.tif" % (safe_file_path.stem, "vh"))
         make_dummy_raster_file(output_file_vh_before_move)
 
         out_path = Path("/tmp/output/%s" % uid)
@@ -294,7 +294,8 @@ def test_process_snap(fixture_mainclass, safe_file):
     test_feature = safe_file.feature
 
     output_file = fixture_mainclass.process_snap(test_feature, ['VV'])
-    assert output_file == ['vv']
+    assert output_file == ['/tmp/input/'\
+                           'S1B_IW_GRDH_1SDV_20190220T050359_20190220T050424_015025_01C12F_4EA4_vv']
 
 
 @patch('os.system', lambda x: 0)
@@ -307,7 +308,10 @@ def test_process_snap_multiple_polarisations(fixture_mainclass, safe_file):
     test_feature = safe_file.feature
 
     output_file = fixture_mainclass.process_snap(test_feature, ['VV', 'VH'])
-    assert output_file == ['vv', 'vh']
+    assert output_file == ['/tmp/input/'\
+                           'S1B_IW_GRDH_1SDV_20190220T050359_20190220T050424_015025_01C12F_4EA4_vv',
+                           '/tmp/input/'\
+                           'S1B_IW_GRDH_1SDV_20190220T050359_20190220T050424_015025_01C12F_4EA4_vh']
 
 
 # pylint: disable=unused-variable
