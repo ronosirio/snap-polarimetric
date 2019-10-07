@@ -7,7 +7,7 @@ in [UP42](https://up42.com) that performs
 [polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
 processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
 with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.**
+and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
 
 ## Block description
 
@@ -63,25 +63,23 @@ First create a virtual environment either by using [virtualenvwrapper](https://v
 or [virtualenv](https://virtualenv.pypa.io/en/latest/).
 In the case of using virtualenvwrapper do:
 
-```
+```bash
 mkvirtualenv --python=$(which python3.7) up42-snap
 ```
 
 In the case of using virtualenv do:
 
-```
+```bash
 virtualenv -p $(which python3.7) up42-snap
 ```
 
 Activate the virtualenv:
-
-```
+```bash
 workon up42-snap
 ```
 
 After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
-
-```
+```bash
 make install
 ```
 
@@ -97,8 +95,7 @@ make test
 ### Dockerizing the block
 
 Build the docker image locally:
-
-```
+```bash
 make build
 ```
 
@@ -131,7 +128,7 @@ docker push registry.up42.com/<UID>/<image_name>:<tag>
 
 First make sure the manifest is valid:
 
-```
+```bash
 make validate
 ```
 
@@ -165,7 +162,7 @@ Now you can finally push the image to the UP42 docker registry:
 make push UID=<UID>
 ```
 
-where `<UID>` is user ID referenced above.
+Where `<UID>` is user ID referenced above.
 
 Note that if you specified a custom docker tag when you built the image, you
 need to pass it now to `make`.
