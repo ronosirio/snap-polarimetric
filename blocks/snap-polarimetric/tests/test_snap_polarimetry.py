@@ -251,7 +251,8 @@ def test_generate_snap_graph(fixture_mainclass, safe_file):
     for snap graph template and checks whether this file reads the
     manifest.safe file from the expected directory.
     """
-    fixture_mainclass.generate_snap_graph(safe_file.feature, "VV")
+    fixture_mainclass.generate_snap_graph(safe_file.feature, "VV", '/tmp/input/S1B_IW_GRDH_1SDV_'\
+                               '20190220T050359_20190220T050424_015025_01C12F_4EA4.SAFE_vv')
 
     graph_xml_file = PosixPath('/tmp/S1B_IW_GRDH_1SDV_'
                                '20190220T050359_20190220T050424_015025_01C12F_4EA4.SAFE_VV.xml')

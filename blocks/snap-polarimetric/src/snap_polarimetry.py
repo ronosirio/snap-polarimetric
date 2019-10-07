@@ -21,7 +21,7 @@ from capabilities import set_capability
 
 LOGGER = get_logger(__name__)
 PARAMS_FILE = os.environ.get("PARAMS_FILE")
-GPT_CMD = "{gpt_path} {graph_xml_path} -e {source_file} -t {output_file}"
+GPT_CMD = "{gpt_path} {graph_xml_path} -e {source_file}"
 
 
 # pylint: disable=unnecessary-pass
@@ -143,7 +143,7 @@ class SNAPPolarimetry:
         return Path(self.path_to_tmp_out).joinpath("%s_%s.xml"
                                                    % (self.safe_file_name(feature), polarisation))
 
-    def generate_snap_graph(self, feature: Feature, polarisation: str):
+    def generate_snap_graph(self, feature: Feature, polarisation: str, out_file_pol: str):
         """
         Generates the snap graph xml file for the
         given feature, based on the snap graph xml template
@@ -151,21 +151,21 @@ class SNAPPolarimetry:
         if self.params['mask'] == ['sea']:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
+                'downcase_polarisation': out_file_pol,
                 'upcase_polarisation': polarisation.upper(),
                 'mask_type': 'false'
             })
         elif self.params['mask'] == ['land']:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
+                'downcase_polarisation': out_file_pol,
                 'upcase_polarisation': polarisation.upper(),
                 'mask_type': 'true'
             })
         else:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
+                'downcase_polarisation': out_file_pol,
                 'upcase_polarisation': polarisation.upper(),
             })
 
@@ -225,17 +225,16 @@ class SNAPPolarimetry:
 
         for polarisation in requested_pols:
 
-            self.generate_snap_graph(feature, polarisation)
-
             # Construct output snap processing file path with SAFE id plus polarization
             # i.e. S1A_IW_GRDH_1SDV_20190928T051659_20190928T051724_029217_035192_D2A2_vv
             out_file_pol = "/tmp/input/%s_%s" % (input_file_path.stem, polarisation.lower())
+
+            self.generate_snap_graph(feature, polarisation, out_file_pol)
 
             cmd = GPT_CMD.format(
                 gpt_path="gpt",
                 graph_xml_path=self.target_snap_graph_path(feature, polarisation),
                 source_file=input_file_path,
-                output_file=out_file_pol
             )
 
             LOGGER.info("Running SNAP command: %s", cmd)
