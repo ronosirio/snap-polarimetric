@@ -266,12 +266,12 @@ class SNAPPolarimetry:
                 out_feature = copy.deepcopy(in_feature)
                 processed_tif_uuid = out_feature.properties[SENTINEL1_L1C_GRD]
                 out_path = "/tmp/output/%s/" % (processed_tif_uuid)
+                if not os.path.exists(out_path):
+                    os.mkdir(out_path)
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
                     shutil.move(("%s.tif" % out_polarisation),
                                 ("%s%s.tif" % (out_path, out_polarisation.split('_')[-1])))
-                if not os.path.exists(out_path):
-                    os.mkdir(out_path)
                 del out_feature["properties"][SENTINEL1_L1C_GRD]
                 set_capability(out_feature,
                                SNAP_POLARIMETRIC,
