@@ -139,7 +139,7 @@ make build UID=<UID>
 ```
 
 You can additionally specify a custom tag and version for your image (default tag
-is `snap-polarimetric:latest`):
+is `snap-polarimetric:latest` - `<DOCKER_TAG>:<DOCKER_VERSION>`):
 
 ```bash
 make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
