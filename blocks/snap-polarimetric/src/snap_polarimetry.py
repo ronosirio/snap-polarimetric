@@ -283,7 +283,7 @@ class SNAPPolarimetry:
                 Path(__file__).parent.joinpath("template/"\
                                                "snap_polarimetry_graph_%s.xml" % "copy").unlink()
             except WrongPolarizationError:
-                LOGGER.error("%s: some or all of the polarisations (%r) don't exist"\
+                LOGGER.error("%s: some or all of the polarisations (%r) don't exist "\
                              "in this product (%s), skipping.",
                              "WrongPolarizationError", polarisations,
                              self.safe_file_name(in_feature))
