@@ -3,6 +3,7 @@ SRC := blocks/snap-polarimetric
 MANIFEST_JSON := $(SRC)/UP42Manifest.json
 UP42_DOCKERFILE := $(SRC)/Dockerfile
 DOCKER_TAG := snap-polarimetric
+DOCKER_VERSION := latest
 ## Extra images needed by the block image.
 LIBS_DIR := $(SRC)/libs
 ESA_SNAP_DOCKERFILE := $(LIBS_DIR)/Dockerfile-esa-snap
@@ -21,7 +22,7 @@ build-image-up42-snap:
 
 build: $(MANIFEST_JSON) build-image-esa-snap build-image-up42-snap
 ifdef UID
-	$(DOCKER) build --build-arg manifest="$$(cat $<)" -f $(UP42_DOCKERFILE) -t $(REGISTRY)/$(UID)/$(DOCKER_TAG) .
+	$(DOCKER) build --build-arg manifest="$$(cat $<)" -f $(UP42_DOCKERFILE) -t $(REGISTRY)/$(UID)/$(DOCKER_TAG):$(DOCKER_VERSION) .
 else
 	$(DOCKER) build --build-arg manifest="$$(cat $<)" -f $(UP42_DOCKERFILE) -t $(DOCKER_TAG) .
 endif
@@ -36,7 +37,7 @@ validate: $(MANIFEST_JSON)
 	$(CURL) -X POST -H 'Content-Type: application/json' -d @$^ $(VALIDATE_ENDPOINT)
 
 push:
-	$(DOCKER) push $(REGISTRY)/$(UID)/$(DOCKER_TAG)
+	$(DOCKER) push $(REGISTRY)/$(UID)/$(DOCKER_TAG):$(DOCKER_VERSION)
 
 login:
 	$(DOCKER) login -u $(USER) https://$(REGISTRY)
