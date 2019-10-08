@@ -254,10 +254,13 @@ The e2e tests provided here make sure the blocks output conforms to the platform
 requirements. Run the e2e tests with:
 ```bash
 # WARNING: this test require you set sufficient memory and disk capacity in your
-# docker setup. This tests will take a significant amount of time to complete
-# in a standard machine! Please be patient.
+# docker setup. It will take a significant amount of time to complete
+# in a standard machine!
 make e2e
 ```
+
+Note that by default `tcorrection` parameter is set to `False` to speed up the test.
+If you want to test the full feature set make sure you set it to `True`.
 
 ## Support
 
