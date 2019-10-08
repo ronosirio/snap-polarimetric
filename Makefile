@@ -1,4 +1,4 @@
-## Include the configuration. 
+## Include the configuration.
 include config.mk
 
 VALIDATE_ENDPOINT := https://api.up42.com/validate-schema/block
@@ -9,7 +9,7 @@ DOCKER := docker
 build-image-esa-snap:
 	$(DOCKER) build -f $(ESA_SNAP_DOCKERFILE) -t up42-esa-snap .
 
-build-image-up42-snap: 
+build-image-up42-snap:
 	$(DOCKER) build -f $(UP42_SNAP_DOCKERFILE) -t up42-snap .
 
 build: $(MANIFEST_JSON) build-image-esa-snap build-image-up42-snap
@@ -20,7 +20,7 @@ else
 endif
 
 validate: $(MANIFEST_JSON)
-	$(CURL) -X POST -H 'Content-Type: application/json' -d @$^ $(VALIDATE_ENDPOINT) 
+	$(CURL) -X POST -H 'Content-Type: application/json' -d @$^ $(VALIDATE_ENDPOINT)
 
 push:
 	$(DOCKER) push $(REGISTRY)/$(UID)/$(DOCKER_TAG)
@@ -30,12 +30,13 @@ login:
 
 install:
 	cd $(SRC) && ./setup.sh && cd $(CURDIR)
-test: 
+test:
 	cd $(SRC) && ./test.sh && cd $(CURDIR)
+e2e:
+	python e2e.py
 
 run: $(JOB_CONFIG) build
 
-	$(DOCKER) run -e UP42_TASK_PARAMETERS="$$(cat $<)" $(DOCKER_RUN_OPTIONS) $(DOCKER_TAG) 
+	$(DOCKER) run -e UP42_TASK_PARAMETERS="$$(cat $<)" $(DOCKER_RUN_OPTIONS) $(DOCKER_TAG)
 
 .PHONY: build-image-esa-snap build-image-up42-snap build login push test install run
-

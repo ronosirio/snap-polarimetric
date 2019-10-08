@@ -8,7 +8,6 @@ from typing import List
 from pathlib import Path
 import shutil
 from string import Template
-import uuid
 import copy
 
 import xml.etree.ElementTree as Et
@@ -144,7 +143,7 @@ class SNAPPolarimetry:
         return Path(self.path_to_tmp_out).joinpath("%s_%s.xml"
                                                    % (self.safe_file_name(feature), polarisation))
 
-    def generate_snap_graph(self, feature: Feature, polarisation: str):
+    def generate_snap_graph(self, feature: Feature, polarisation: str, out_file_pol: str):
         """
         Generates the snap graph xml file for the
         given feature, based on the snap graph xml template
@@ -152,22 +151,22 @@ class SNAPPolarimetry:
         if self.params['mask'] == ['sea']:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
+                'downcase_polarisation': out_file_pol,
                 'upcase_polarisation': polarisation.upper(),
                 'mask_type': 'false'
             })
         elif self.params['mask'] == ['land']:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
+                'downcase_polarisation': out_file_pol,
                 'upcase_polarisation': polarisation.upper(),
                 'mask_type': 'true'
             })
         else:
             result = self.process_template({
                 'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': polarisation.lower(),
-                'upcase_polarisation': polarisation.upper(),
+                'downcase_polarisation': out_file_pol,
+                'upcase_polarisation': polarisation.upper()
             })
 
         self.target_snap_graph_path(feature, polarisation).write_text(result)
@@ -226,12 +225,16 @@ class SNAPPolarimetry:
 
         for polarisation in requested_pols:
 
-            self.generate_snap_graph(feature, polarisation)
+            # Construct output snap processing file path with SAFE id plus polarization
+            # i.e. S1A_IW_GRDH_1SDV_20190928T051659_20190928T051724_029217_035192_D2A2_vv
+            out_file_pol = "/tmp/input/%s_%s" % (input_file_path.stem, polarisation.lower())
+
+            self.generate_snap_graph(feature, polarisation, out_file_pol)
 
             cmd = GPT_CMD.format(
                 gpt_path="gpt",
                 graph_xml_path=self.target_snap_graph_path(feature, polarisation),
-                source_file=input_file_path
+                source_file=input_file_path,
             )
 
             LOGGER.info("Running SNAP command: %s", cmd)
@@ -242,7 +245,7 @@ class SNAPPolarimetry:
                 LOGGER.error("SNAP did not finish successfully with error code %d", return_value)
                 sys.exit(return_value)
 
-            out_files.append(polarisation.lower())
+            out_files.append(out_file_pol)
 
         return out_files
 
@@ -253,36 +256,40 @@ class SNAPPolarimetry:
         polarisations: List = params.get("polarisations", ["VV"]) or ["VV"]
 
         results: List[Feature] = []
-        out_path: str = ''
-        processed_graphs: List = []
+        out_dict: dict = {}
         for in_feature in metadata.get("features"):
             coordinate = in_feature['bbox']
             self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 LOGGER.info("SNAP processing is finished!")
+                out_feature = copy.deepcopy(in_feature)
+                processed_tif_uuid = out_feature.properties[SENTINEL1_L1C_GRD]
+                out_path = "/tmp/output/%s/" % (processed_tif_uuid)
+                if not os.path.exists(out_path):
+                    os.mkdir(out_path)
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
-                    out_feature = copy.deepcopy(in_feature)
-                    processed_tif_uuid = str(uuid.uuid4())
-                    out_path = "/tmp/output/%s/" % processed_tif_uuid
-                    os.mkdir(out_path)
                     shutil.move(("%s.tif" % out_polarisation),
-                                ("%s%s.tif" % (out_path, out_polarisation)))
-
-                    del out_feature["properties"][SENTINEL1_L1C_GRD]
-
-                    set_capability(out_feature,
-                                   SNAP_POLARIMETRIC,
-                                   processed_tif_uuid+".tif")
-
-                    results.append(out_feature)
-
+                                ("%s%s.tif" % (out_path, out_polarisation.split('_')[-1])))
+                del out_feature["properties"][SENTINEL1_L1C_GRD]
+                set_capability(out_feature,
+                               SNAP_POLARIMETRIC,
+                               processed_tif_uuid+".tif")
+                results.append(out_feature)
+                out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
+                                                'z': [i.split('_')[-1] for i in processed_graphs],
+                                                'out_path': out_path}
+                Path(__file__).parent.joinpath("template/"\
+                                               "snap_polarimetry_graph_%s.xml" % "copy").unlink()
             except WrongPolarizationError:
+                LOGGER.error("%s: some or all of the polarisations (%r) don't exist "\
+                             "in this product (%s), skipping.",
+                             "WrongPolarizationError", polarisations,
+                             self.safe_file_name(in_feature))
                 continue
 
-        Path(__file__).parent.joinpath("template/snap_polarimetry_graph_%s.xml" % "copy").unlink()
-        return FeatureCollection(results), out_path, processed_graphs
+        return FeatureCollection(results), out_dict
 
     @staticmethod
     def post_process(output_filepath, list_pol):
@@ -346,7 +353,7 @@ class SNAPPolarimetry:
         shutil.move("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem),
                     "%s" % Path("%s" % output_filepath).parent)
         # Remove the child directory
-        Path(output_filepath).rmdir()
+        shutil.rmtree(Path(output_filepath))
 
     @staticmethod
     def run():
@@ -357,8 +364,9 @@ class SNAPPolarimetry:
         params: dict = load_params()
         input_metadata: FeatureCollection = load_metadata()
         pol_processor = SNAPPolarimetry(params)
-        result, outfile, outfile_pol = pol_processor.process(input_metadata, params)
+        result, out_dict = pol_processor.process(input_metadata, params)
         save_metadata(result)
-        if params['mask'] is not None:
-            pol_processor.post_process(outfile, outfile_pol)
-        pol_processor.rename_final_stack(outfile, outfile_pol)
+        for out_id in out_dict:
+            if params['mask'] is not None:
+                pol_processor.post_process(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
+            pol_processor.rename_final_stack(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
