@@ -280,11 +280,15 @@ class SNAPPolarimetry:
                 out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
                                                 'pol': [i.split('_')[-1] for i in processed_graphs],
                                                 'out_path': out_path}
-
+                Path(__file__).parent.joinpath("template/"\
+                                               "snap_polarimetry_graph_%s.xml" % "copy").unlink()
             except WrongPolarizationError:
+                LOGGER.error("%s: some or all of the polarisations (%r) don't exist"\
+                             "in this product (%s), skipping.",
+                             "WrongPolarizationError", polarisations,
+                             self.safe_file_name(in_feature))
                 continue
 
-        Path(__file__).parent.joinpath("template/snap_polarimetry_graph_%s.xml" % "copy").unlink()
         return FeatureCollection(results), out_dict
 
     @staticmethod
