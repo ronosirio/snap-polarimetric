@@ -138,11 +138,11 @@ Now you can launch the image building using `make` like this:
 make build UID=<UID>
 ```
 
-You can additionally specify a custom tag for your image (default tag
+You can additionally specify a custom tag and version for your image (default tag
 is `snap-polarimetric:latest`):
 
 ```bash
-make build UID=<UID> DOCKER_TAG=<docker tag>
+make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
 ```
 
 #### Push the image to the UP42 registry
@@ -164,11 +164,11 @@ make push UID=<UID>
 
 Where `<UID>` is user ID referenced above.
 
-Note that if you specified a custom docker tag when you built the image, you
+Note that if you specified a custom docker tag or version when you built the image, you
 need to pass it now to `make`.
 
 ```bash
-make push UID=<UID> DOCKER_TAG=<docker tag>
+make push UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
 ```
 
 After the image is pushed you should be able to see your custom block
