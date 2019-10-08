@@ -7,7 +7,7 @@ in [UP42](https://up42.com) that performs
 [polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
 processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
 with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
+and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.**
 
 ## Block description
 
@@ -63,23 +63,19 @@ First create a virtual environment either by using [virtualenvwrapper](https://v
 or [virtualenv](https://virtualenv.pypa.io/en/latest/).
 In the case of using virtualenvwrapper do:
 
-```bash
+```
 mkvirtualenv --python=$(which python3.7) up42-snap
 ```
 
 In the case of using virtualenv do:
 
-```bash
+```
 virtualenv -p $(which python3.7) up42-snap
 ```
 
-Activate the virtualenv:
-```bash
-workon up42-snap
-```
-
 After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
-```bash
+
+```
 make install
 ```
 
@@ -95,7 +91,8 @@ make test
 ### Dockerizing the block
 
 Build the docker image locally:
-```bash
+
+```
 make build
 ```
 
@@ -128,7 +125,7 @@ docker push registry.up42.com/<UID>/<image_name>:<tag>
 
 First make sure the manifest is valid:
 
-```bash
+```
 make validate
 ```
 
@@ -138,11 +135,11 @@ Now you can launch the image building using `make` like this:
 make build UID=<UID>
 ```
 
-You can additionally specify a custom tag and version for your image (default tag
-is `snap-polarimetric:latest` - `<DOCKER_TAG>:<DOCKER_VERSION>`):
+You can additionally specify a custom tag for your image (default tag
+is `snap-polarimetric:latest`):
 
 ```bash
-make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
+make build UID=<UID> DOCKER_TAG=<docker tag>
 ```
 
 #### Push the image to the UP42 registry
@@ -162,18 +159,20 @@ Now you can finally push the image to the UP42 docker registry:
 make push UID=<UID>
 ```
 
-Where `<UID>` is user ID referenced above.
+where `<UID>` is user ID referenced above.
 
-Note that if you specified a custom docker tag or version when you built the image, you
+Note that if you specified a custom docker tag when you built the image, you
 need to pass it now to `make`.
 
 ```bash
-make push UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
+# WARNING: this test require you set sufficient memory and disk capacity in your
+# docker setup. It will take a significant amount of time to complete
+# in a standard machine!
+make e2e
 ```
 
-After the image is pushed you should be able to see your custom block
-in the [console](https://console.up42.dev/custom-blocks/) and you can
-now use the block in a workflow.
+Note that by default `tcorrection` parameter is set to `False` to speed up the test.
+If you want to test the full feature set make sure you set it to `True`.
 
 ## Support
 
