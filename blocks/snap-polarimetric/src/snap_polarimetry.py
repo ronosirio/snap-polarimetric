@@ -278,7 +278,7 @@ class SNAPPolarimetry:
                                processed_tif_uuid+".tif")
                 results.append(out_feature)
                 out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
-                                                'pol': [i.split('_')[-1] for i in processed_graphs],
+                                                'z': [i.split('_')[-1] for i in processed_graphs],
                                                 'out_path': out_path}
                 Path(__file__).parent.joinpath("template/"\
                                                "snap_polarimetry_graph_%s.xml" % "copy").unlink()
@@ -368,5 +368,5 @@ class SNAPPolarimetry:
         save_metadata(result)
         for out_id in out_dict:
             if params['mask'] is not None:
-                pol_processor.post_process(out_dict[out_id]['out_path'], out_dict[out_id]['pol'])
-            pol_processor.rename_final_stack(out_dict[out_id]['out_path'], out_dict[out_id]['pol'])
+                pol_processor.post_process(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
+            pol_processor.rename_final_stack(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
