@@ -148,8 +148,12 @@ Now you can finally push the image to the UP42 docker registry, again passing in
 make push UID=<UID>
 ```
 
-**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) and can
-be selected under the "Custom blocks" tab when building a workflow.
+<p align="center">
+  <img width="500" src="figures/custom_block_successfully_uploaded.jpg">
+</p>
+
+**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) menu 
+and can be selected under the "Custom blocks" tab when building a workflow.
 
 
 ### Optional: Updating an existing custom block
