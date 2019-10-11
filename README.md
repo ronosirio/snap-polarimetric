@@ -151,6 +151,28 @@ make push UID=<UID>
 be selected under the "Custom blocks" tab when building a workflow.
 
 
+### Optional: Updating an existing custom block
+
+If you want to update a custom block on UP42, you need to tag the Docker container with an updated version tag:
+The default docker tag is `snap-polarimetric:latest`.
+
+```bash
+docker tag <block-name>:<old_version-number> <block-name>:<new_version-number> 
+
+# As an example:
+# docker tag snap-polarimetric:latest snap-polarimetric:1.0
+```
+
+Then build the block container with the updated tag:
+
+```bash
+make build UID=<UID> DOCKER_TAG=<docker tag>
+
+# As an example:
+make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
+```
+
+
 ## Support
 
 Open a github issue in this repository or send us an email at [support@up42.com](mailto:support@up42.com), 
