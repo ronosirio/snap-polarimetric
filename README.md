@@ -102,7 +102,7 @@ would be uploaded to UP42). The end-to-end test makes sure the block's output ac
 
 First build the docker image locally.
 
-```
+```bash
 make build
 ```
 
