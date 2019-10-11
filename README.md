@@ -24,7 +24,7 @@ This example requires the **Mac or Ubuntu bash**, an example using **Windows** w
 In order to bring this example block or your own custom block to the UP42 platform the following tools are required:
 
 
- - [UP42](https://up42.com) account -  [Sign up for free!]((https://up42.com))
+ - [UP42](https://up42.com) account -  Sign up for free!
  - [Python 3.7](https://python.org/downloads)
  - A virtual environment manager e.g. [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
  - [git](https://git-scm.com/)
@@ -128,7 +128,7 @@ make login USER=me@example.com
 ```
 
 In order to push the block to the UP42 platform, you need to build the block Docker container with your
-**UP42 USER-ID**. To get your USER-ID‚, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks).
+**UP42 USER-ID**. To get your USER-ID, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks).
 Click on "`PUSH a BLOCK to THE PLATFORM`" and copy your USERID from the command shown on the last line at
 "`Push the image to the UP42 Docker registry`". The USERID will look similar to this:
 `63uayd50-z2h1-3461-38zq-1739481rjwia`
