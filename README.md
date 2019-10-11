@@ -149,12 +149,12 @@ make push UID=<UID>
 # As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia
 ```
 
+**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) menu 
+and can be selected under the "Custom blocks" tab when building a workflow.
+
 <p align="center">
   <img width="500" src="figures/custom_block_successfully_uploaded.jpg">
 </p>
-
-**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) menu 
-and can be selected under the "Custom blocks" tab when building a workflow.
 
 
 ### Optional: Updating an existing custom block
@@ -173,11 +173,11 @@ Then build the block container with the updated tag:
 ```bash
 make build UID=<UID> DOCKER_TAG=<docker tag>
 
-# As an example: make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
+# As an example: make build UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
 ```
 
 
 ## Support
 
-Open a github issue in this repository or send us an email at [support@up42.com](mailto:support@up42.com), 
+Open a **github issue** in this repository or send us an **email** at [support@up42.com](mailto:support@up42.com), 
 we are happy to answer your questions!
