@@ -2,12 +2,12 @@
 ## Introduction
 
 This repository contains the code implementing a
-[block](https://docs.up42.com/getting-started/core-concepts.html#blocks)
+[block](https://docs.up42.com/going-further/core-concepts.html)
 in [UP42](https://up42.com) that performs
 [polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
 processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
 with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.**
+and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
 
 ## Block description
 
@@ -15,6 +15,7 @@ and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.**
 * Supported input types:
   * Sentinel1_l1c_grd (Sentinel 1 L1C GRD in SAFE format)
 * Provider: [UP42](https://up42.com)
+* [Documentation](https://docs.up42.com/up42-blocks/processing/snap-polarimetric.html)
 * Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
 
 ### Inputs & outputs
@@ -96,8 +97,9 @@ Build the docker image locally:
 make build
 ```
 
-The e2e tests provided here make sure the blocks output conforms to the platform's
-requirements. Run the e2e tests with:
+The end to end (`e2e`) tests provided here make sure the blocks output conforms
+to the platform's requirements. They make sure the implementation is functional
+within a docker container. Run the `e2e` tests with:
 
 ```bash
 # WARNING: this test require you set sufficient memory and disk capacity in your
