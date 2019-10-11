@@ -97,9 +97,8 @@ make validate
 
 ### Run the end-to-end test
 
-In order to run the final end-to-end (e2e) test the block code needs to be dockerized (put in a container that later on
-would be uploaded to UP42). The end-to-end test makes sure the block's output actually conforms to the platform's
-requirements.
+In order to run the final end-to-end (`e2e`) test the block code needs to be dockerized (put in a container that later on
+would be uploaded to UP42). The end-to-end test makes sure the block's output actually conforms to the platform's requirements.
 
 First build the docker image locally.
 
@@ -107,9 +106,7 @@ First build the docker image locally.
 make build
 ```
 
-The end to end (`e2e`) tests provided here make sure the blocks output conforms
-to the platform's requirements. They make sure the implementation is functional
-within a docker container. Run the `e2e` tests with:
+Run the `e2e` tests with:
 
 ```bash
 # WARNING: This test carries out the complete preprocessing chain for a full Sentinel-1 image.
