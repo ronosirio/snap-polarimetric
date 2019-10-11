@@ -155,9 +155,8 @@ make push UID=<UID>
 and can be selected under the "Custom blocks" tab when building a workflow.
 
 <p align="center">
-  <img width="500" src="figures/custom_block_successfully_uploaded.jpg">
+  <img width="500" src="https://i.ibb.co/YpmwxY2/custom-block-successfully-uploaded.png">
 </p>
-
 
 ### Optional: Updating an existing custom block
 
