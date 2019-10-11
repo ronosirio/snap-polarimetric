@@ -101,7 +101,7 @@ In order to run the final end-to-end (e2e) test the block code needs to be docke
 would be uploaded to UP42). The end-to-end test makes sure the block's output actually conforms to the platform's 
 requirements. 
 
-First build the docker image locally:
+First build the docker image locally.
 
 ```
 make build
@@ -110,9 +110,9 @@ make build
 Then run the e2e-test via:
 
 ```bash
-# WARNING: this test require you set sufficient memory and disk capacity in your
-# docker setup. This tests will take a significant amount of time to complete
-# on a standard machine! Please be patient.
+# WARNING: For this test to run you need to set sufficient memory and disk capacity in your docker setup. 
+# Go to Docker > Preferences > Advanced and increase Memory to >8GB and Swap to >2GB. 
+# This tests will take a significant amount of time to complete on a standard machine! Please be patient.
 
 make e2e
 ```
