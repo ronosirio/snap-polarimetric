@@ -2,7 +2,7 @@
 ## Introduction
 
 This repository is intended as an example of how to bring your own custom processing
-[block](https://docs.up42.com/getting-started/core-concepts.html#blocks) to the [UP42 platform](https://up42.com).
+[block](https://docs.up42.com/going-further/core-concepts.html#blocks) to the [UP42 platform](https://up42.com).
 Instructions on how to set up, dockerize and push your block to UP42 are provided below or in the
 [UP42 documentation: Push your first custom block](https://docs.up42.com/getting-started/first-custom-block.html#).
 
@@ -149,7 +149,7 @@ make push UID=<UID>
 ```
 
 **Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) menu
-and can be selected under the "Custom blocks" tab when building a workflow.
+and can be selected under the *Custom blocks* tab when building a workflow.
 
 <p align="center">
   <img width="500" src="https://i.ibb.co/YpmwxY2/custom-block-successfully-uploaded.png">
