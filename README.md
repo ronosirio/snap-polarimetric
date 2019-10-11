@@ -157,21 +157,21 @@ and can be selected under the *Custom blocks* tab when building a workflow.
 
 ### Optional: Updating an existing custom block
 
-If you want to update a custom block on UP42, you need to tag the Docker container with an updated version tag:
-The default docker tag is `snap-polarimetric:latest`.
+If you want to update a custom block on UP42, you need to build the Docker container with an updated version:
+The default docker tag is `snap-polarimetric` and the version is set to `latest`.
 
 ```bash
-docker tag <block-name>:<old_version-number> <block-name>:<new_version-number>
+make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
 
-# As an example: docker tag snap-polarimetric:latest snap-polarimetric:1.0
+# As an example: docker build UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric DOCKER_VERSION=1.0
 ```
 
-Then build the block container with the updated tag:
+Then push the block container with the updated tag and version:
 
 ```bash
-make build UID=<UID> DOCKER_TAG=<docker tag>
+make push UID=<UID> DOCKER_TAG=<docker tag>
 
-# As an example: make build UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
+# As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric DOCKER_VERSION=1.0
 ```
 
 
