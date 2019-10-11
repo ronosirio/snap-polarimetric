@@ -110,9 +110,10 @@ make build
 Then run the e2e-test via:
 
 ```bash
-# WARNING: For this test to run you need to set sufficient memory and disk capacity in your docker setup. 
+# WARNING: This test carries out the complete preprocessing chain for a full Sentinel-1 image. 
+# This requires sufficient memory and disk capacity settings in your docker setup. 
 # Go to Docker > Preferences > Advanced and increase Memory to >8GB and Swap to >2GB. 
-# This tests will take a significant amount of time to complete on a standard machine! Please be patient.
+# This test will take about 2 hours to complete on a standard machine! Please be patient.
 
 make e2e
 ```
@@ -127,25 +128,25 @@ which is the email address you use on the UP42 website.
 make login USER=me@example.com
 ```
 
-In order to push the block to the UP42 platform, you need to build the block Docker container with your **UP42 USER-ID**. 
-To get your USER-ID, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks). 
+In order to push the block to the UP42 platform, you need to build the block Docker container with your 
+**UP42 USER-ID**. To get your USER-ID‚, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks). 
 Click on "`PUSH a BLOCK to THE PLATFORM`" and copy your USERID from the command shown on the last line at 
 "`Push the image to the UP42 Docker registry`". The USERID will look similar to this: 
-`registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia`
+`63uayd50-z2h1-3461-38zq-1739481rjwia`
 
-Pass the USER-ID to the build command:
-
+Pass the USER-ID to the build command: 
 ```bash
 make build UID=<UID>
 
-# As an example:
-# make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia
+# As an example: make build UID=63uayd50-z2h1-3461-38zq-1739481rjwia
 ```
 
 Now you can finally push the image to the UP42 docker registry, again passing in your USER-ID:
 
 ```bash
 make push UID=<UID>
+
+# As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia
 ```
 
 <p align="center">
@@ -164,8 +165,7 @@ The default docker tag is `snap-polarimetric:latest`.
 ```bash
 docker tag <block-name>:<old_version-number> <block-name>:<new_version-number> 
 
-# As an example:
-# docker tag snap-polarimetric:latest snap-polarimetric:1.0
+# As an example: docker tag snap-polarimetric:latest snap-polarimetric:1.0
 ```
 
 Then build the block container with the updated tag:
@@ -173,8 +173,7 @@ Then build the block container with the updated tag:
 ```bash
 make build UID=<UID> DOCKER_TAG=<docker tag>
 
-# As an example:
-make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
+# As an example: make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric:1.0
 ```
 
 
