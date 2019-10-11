@@ -169,7 +169,7 @@ make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
 Then push the block container with the updated tag and version:
 
 ```bash
-make push UID=<UID> DOCKER_TAG=<docker tag>
+make push UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
 
 # As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric DOCKER_VERSION=1.0
 ```
