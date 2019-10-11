@@ -60,7 +60,7 @@ Activate the new environment:
 workon up42-snap
 ```
 
-Install the necessary libraries via:
+Install the necessary Python libraries via:
 
 ```bash
 make install
@@ -68,8 +68,9 @@ make install
 
 ## Testing the block locally
 
-Before uploading the block to the UP42 platform, we will run some local tests and validation to ensure that the 
-block works as expected, conforms to the UP42 specifications and can could successfully applied in an UP42 workflow.
+Before uploading the block to the UP42 platform, we encourage you to run the following local tests and validations to 
+ensure that the block works as expected, conforms to the UP42 specifications and can could successfully applied in an 
+UP42 workflow.
 
 ### Run the unit tests
 
