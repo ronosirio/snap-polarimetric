@@ -1,53 +1,41 @@
-# SNAP polarimetric processing block
+# Custom block example: Polarimetric SAR-Processing
 ## Introduction
 
-This repository contains the code implementing a
-[block](https://docs.up42.com/getting-started/core-concepts.html#blocks)
-in [UP42](https://up42.com) that performs
-[polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
-processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
-with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.**
+This repository is intended as an example of how to bring your own custom processing
+[block](https://docs.up42.com/getting-started/core-concepts.html#blocks) to the [UP42 platform](https://up42.com). 
+Instructions on how to set up, dockerize and push your block to UP42 are provided below or in the 
+[UP42 documentation: Push your first custom block](https://docs.up42.com/getting-started/first-custom-block.html#).
 
-## Block description
+The repository contains the code implementing a processing block that performs 
+[polarimetric](https://en.wikipedia.org/wiki/Polarimetry) processing of 
+[Sentinel-1](https://earth.esa.int/web/guest/missions/esa-operational-eo-missions/sentinel-1) Level-1 GRD 
+(**G**round **R**ange **D**etection) data via the [ESA SNAP toolbox](http://step.esa.int/main/toolboxes/snap/). 
+Sentinel-1 is a [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR) 
+Earth-Observation satellite. The block functionality and performed processing steps are described in more detail in 
+the [UP42 documentation: SNAP polarimetric block](https://docs.up42.com/up42-blocks/processing/snap-polarimetric.html).
 
-* Block type: processing (data preparation)
-* Supported input types:
-  * Sentinel1_l1c_grd (Sentinel 1 L1C GRD in SAFE format)
-* Provider: [UP42](https://up42.com)
-* Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
+**Block Input**: Sentinel-1 Level-1 GRD file in SAFE format   
+**Block Output**: [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file
 
-### Inputs & outputs
-
-This block takes as input a Level 1C GRD file and brings it into a format ready
-for analysis. It is based on ESA's
-[**S**e**N**tinel **A**pplication **P**latform](http://step.esa.int/main/toolboxes/snap/)
-(SNAP). The applied processing steps are:
-
- * Value conversion: linear to dB.
- * Speckle filtering (using a median filter).
- * Creation of a land-sea mask.
- * Format conversion to GeoTIFF.
- * Apply terrain correction.
-
-The output is a [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file.
-
-### Block capabilities
-
-The block takes a `up42.data.scene.sentinel1_l1c_grd` input
-[capability](https://docs.up42.com/specifications/capabilities.html)
-and delivers `up42.data.aoiclipped` as output capability.
 
 ## Requirements
 
- 1. [git](https://git-scm.com/).
- 2. [docker engine](https://docs.docker.com/engine/).
- 3. [UP42](https://up42.com) account credentials.
- 4. [GNU make](https://www.gnu.org/software/make/).
- 5. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
-    for [local development](#local-development).
+This example requires the **Mac or Ubuntu bash**, an example using **Windows** will be provided shortly.
+In order to bring this example block or your own custom block to the UP42 platform the following tools are required:
 
-## Usage
+
+ - [UP42](https://up42.com) account -  [Sign up for free!]((https://up42.com))
+ - [Python 3.7](https://python.org/downloads)
+ - A virtual environment manager e.g. [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
+ - [git](https://git-scm.com/)
+ - [docker engine](https://docs.docker.com/engine/)
+ - [GNU make](https://www.gnu.org/software/make/)
+ 
+ 
+## Instructions
+
+The following step-by-step instructions will guide you through setting up, dockerizing and pushing the example custom 
+block to UP42.
 
 ### Clone the repository
 
@@ -55,128 +43,115 @@ and delivers `up42.data.aoiclipped` as output capability.
 git clone https://github.com/up42/snap-polarimetric.git
 ```
 
-The do `cd snap-polarimetric`.
+Then navigate to the folder via `cd snap-polarimetric`.
 
 ### Installing the required libraries
 
-First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
-or [virtualenv](https://virtualenv.pypa.io/en/latest/).
-In the case of using virtualenvwrapper do:
+First create a new virtual environment called `up42-snap`, for example by using 
+[virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/):
 
-```
+```bash
 mkvirtualenv --python=$(which python3.7) up42-snap
 ```
 
-In the case of using virtualenv do:
+Activate the new environment:
 
-```
-virtualenv -p $(which python3.7) up42-snap
+```bash
+workon up42-snap
 ```
 
-After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
+Install the necessary libraries via:
 
-```
+```bash
 make install
 ```
 
-### Run the tests
+## Testing the block locally
 
-This project uses [pytest](https://docs.pytest.org/en/latest/) for
-testing.  To run the tests, do as following:
+Before uploading the block to the UP42 platform, we will run some local tests and validation to ensure that the 
+block works as expected, conforms to the UP42 specifications and can could successfully applied in an UP42 workflow.
+
+### Run the unit tests
+
+By successfully running the implemented Python unit tests you can ensure that the block processing functionality works 
+as expected. This project uses [pytest](https://docs.pytest.org/en/latest/) for testing, which was installed in 
+the previous step. Run the unit tests via:
 
 ```bash
 make test
 ```
 
-### Dockerizing the block
+### Validate the manifest
 
-Build the docker image locally:
+Then test if the block manifest is valid. The 
+[UP42manifest.json](https://github.com/up42/snap-polarimetric/blob/master/blocks/snap-polarimetric/UP42Manifest.json)
+file contains the block capabilities. They define what kind of data a block accepts and provides, which parameters 
+can be used with the block etc. See the 
+[UP42 block capabilities documentation](https://docs.up42.com/reference/capabilities.html?highlight=capabilities). 
+Validate the manifest via:
+
+```bash
+make validate
+```
+
+### Run the end-to-end test
+
+In order to run the final end-to-end (e2e) test the block code needs to be dockerized (put in a container that later on
+would be uploaded to UP42). The end-to-end test makes sure the block's output actually conforms to the platform's 
+requirements. 
+
+First build the docker image locally:
 
 ```
 make build
 ```
 
-The e2e tests provided here make sure the blocks output conforms to the platform's
-requirements. Run the e2e tests with:
+Then run the e2e-test via:
 
 ```bash
 # WARNING: this test require you set sufficient memory and disk capacity in your
 # docker setup. This tests will take a significant amount of time to complete
-# in a standard machine! Please be patient.
+# on a standard machine! Please be patient.
+
 make e2e
 ```
 
-### Pushing the block to the UP42 platform
 
-For building the images you should tag the image in a way that can be
-pushed to the UP42 docker registry, enabling you to run it as a custom
-block. For that you need to pass your user ID (UID) in the `make`
-command.
+## Pushing the block to the UP42 platform
 
-The quickest way to get that is just to go into the UP42 console and
-copy & paste from the last clipboard that you get at the
-[custom-blocks](https://console.up42.com/custom-blocks) page and after
-clicking on **PUSH a BLOCK to THE PLATFORM**. For example, it will be
-something like:
-
-```bash
-docker push registry.up42.com/<UID>/<image_name>:<tag>
-```
-
-First make sure the manifest is valid:
-
-```
-make validate
-```
-
-Now you can launch the image building using `make` like this:
-
-```bash
-make build UID=<UID>
-```
-
-You can additionally specify a custom tag for your image (default tag
-is `snap-polarimetric:latest`):
-
-```bash
-make build UID=<UID> DOCKER_TAG=<docker tag>
-```
-
-#### Push the image to the UP42 registry
-
-You first need to login into the UP42 docker registry.
+First login to he UP42 docker registry. `me@example.com` needs to be replaced by your **UP42 username**, 
+which is the email address you use on the UP42 website.
 
 ```bash
 make login USER=me@example.com
 ```
 
-Where `me@example.com` should be replaced by your username, which is
-the email address you use in UP42.
+In order to push the block to the UP42 platform, you need to build the block Docker container with your **UP42 USER-ID**. 
+To get your USER-ID, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks). 
+Click on "`PUSH a BLOCK to THE PLATFORM`" and copy your USERID from the command shown on the last line at 
+"`Push the image to the UP42 Docker registry`". The USERID will look similar to this: 
+`registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia`
 
-Now you can finally push the image to the UP42 docker registry:
+Pass the USER-ID to the build command:
+
+```bash
+make build UID=<UID>
+
+# As an example:
+# make build UID=registry.up42.com/63uayd50-z2h1-3461-38zq-1739481rjwia
+```
+
+Now you can finally push the image to the UP42 docker registry, again passing in your USER-ID:
 
 ```bash
 make push UID=<UID>
 ```
 
-where `<UID>` is user ID referenced above.
+**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) and can
+be selected under the "Custom blocks" tab when building a workflow.
 
-Note that if you specified a custom docker tag when you built the image, you
-need to pass it now to `make`.
-
-```bash
-# WARNING: this test require you set sufficient memory and disk capacity in your
-# docker setup. It will take a significant amount of time to complete
-# in a standard machine!
-make e2e
-```
-
-Note that by default `tcorrection` parameter is set to `False` to speed up the test.
-If you want to test the full feature set make sure you set it to `True`.
 
 ## Support
 
- 1. Open an issue here.
- 2. Reach out to us on
-      [gitter](https://gitter.im/up42-com/community).
- 3. Mail us [support@up42.com](mailto:support@up42.com).
+Open a github issue in this repository or send us an email at [support@up42.com](mailto:support@up42.com), 
+we are happy to answer your questions!
