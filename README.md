@@ -1,270 +1,181 @@
-# Sentinel-1 polarimetric preprocessing
+# Custom block example: Polarimetric SAR-Processing
+## Introduction
 
-## General information
+This repository is intended as an example of how to bring your own custom processing
+[block](https://docs.up42.com/going-further/core-concepts.html#blocks) to the [UP42 platform](https://up42.com).
+Instructions on how to set up, dockerize and push your block to UP42 are provided below or in the
+[UP42 documentation: Push your first custom block](https://docs.up42.com/getting-started/first-custom-block.html#).
 
-* Block type: processing (data preparation)
-* Supported input types:
-  * Sentinel1_l1c_grd (Sentinel 1 L1C GRD in SAFE format)
-* Provider: UP42
-* Tags: SAR, radar, C-Band, imagery, preprocessing, data preparation
+The repository contains the code implementing a processing block that performs
+[polarimetric](https://en.wikipedia.org/wiki/Polarimetry) processing of
+[Sentinel-1](https://earth.esa.int/web/guest/missions/esa-operational-eo-missions/sentinel-1) Level-1 GRD
+(**G**round **R**ange **D**etection) data via the [ESA SNAP toolbox](http://step.esa.int/main/toolboxes/snap/).
+Sentinel-1 is a [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
+Earth-Observation satellite. The block functionality and performed processing steps are described in more detail in
+the [UP42 documentation: SNAP polarimetric block](https://docs.up42.com/up42-blocks/processing/snap-polarimetric.html).
 
-## Description
+**Block Input**: Sentinel-1 Level-1 GRD file in SAFE format   
+**Block Output**: [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file
 
-This repository contains the code implementing a
-[block](https://docs.up42.com/getting-started/core-concepts.html#blocks)
-in [UP42](https://up42.com) that performs
-[polarimetric](https://en.wikipedia.org/wiki/Polarimetry)
-processing of [**S**ynthetic **A**perture **R**adar](https://www.sandia.gov/radar/what_is_sar/index.html) (SAR)
-with [processing Level 1C](https://earth.esa.int/web/sentinel/level-1-post-processing-algorithms)
-and **G**round **R**ange **D**etection (GRD) &mdash; geo-referenced.
-
-### Inputs & outputs
-
-This block takes as input a Level 1C GRD file and brings it into a format ready
-for analysis. It is based on ESA's
-[**S**e**N**tinel **A**pplication **P**latform](http://step.esa.int/main/toolboxes/snap/)
-(SNAP). The applied processing steps are:
-
- * Value conversion: linear to dB.
- * Speckle filtering (using a median filter).
- * Creation of a land-sea mask.
- * Format conversion to GeoTIFF.
- * Apply terrain correction.
-
-The output is a [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) file.
-
-### Block capabilities
-
-The block takes a `up42.data.scene.sentinel1_l1c_grd` input
-[capability](https://docs.up42.com/specifications/capabilities.html)
-and delivers `up42.data.aoiclipped` as output capability.
 
 ## Requirements
 
- 1. [docker](https://docs.docker.com/install/).
- 2. [GNU make](https://www.gnu.org/software/make/).
- 3. [Python](https://python.org/downloads): version >= 3.7 &mdash; only
-    for [local development](#local-development).
+This example requires the **Mac or Ubuntu bash**, an example using **Windows** will be provided shortly.
+In order to bring this example block or your own custom block to the UP42 platform the following tools are required:
 
-## Usage
+
+ - [UP42](https://up42.com) account -  Sign up for free!
+ - [Python 3.7](https://python.org/downloads)
+ - A virtual environment manager e.g. [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
+ - [git](https://git-scm.com/)
+ - [docker engine](https://docs.docker.com/engine/)
+ - [GNU make](https://www.gnu.org/software/make/)
+
+
+## Instructions
+
+The following step-by-step instructions will guide you through setting up, dockerizing and pushing the example custom
+block to UP42.
 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/up42/snap-polarimetric.git <directory>
+git clone https://github.com/up42/snap-polarimetric.git
 ```
-where `<directory>` is the directory where the cloning is done.
 
-### Build the docker images
+Then navigate to the folder via `cd snap-polarimetric`.
 
-For building the images you should tag the image such that it can bu
-pushed to the UP42 docker registry, enabling you to run it as a custom
-block. For that you need to pass your user ID (UID) in the `make`
-command.
+### Installing the required libraries
 
-The quickest way to get that is just to go into the UP42 console and
-copy & paste from the last clipboard that you get at the
-[custom-blocks](https://console.up42.com/custom-blocks) page and after
-clicking on **PUSH a BLOCK to THE PLATFORM**. For example, it will be
-something like:
+First create a new virtual environment called `up42-snap`, for example by using
+[virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/):
 
 ```bash
-docker push registry.up42.com/<UID>/<image_name>:<tag>
+mkvirtualenv --python=$(which python3.7) up42-snap
 ```
 
-Now you can launch the image building using `make` like this:
+Activate the new environment:
 
 ```bash
-make build UID=<UID>
+workon up42-snap
 ```
 
-You can avoid selecting the exact UID by using `pbpaste` in a Mac (OS
-X) or `xsel --clipboard --output` in Linux and do:
-
-```bash
-# mac: OS X.
-make build UID=$(pbpaste | cut -f 2 -d '/')
-
-# Linux.
-make build UID=$(xsel --clipboard --output | cut -f 2 -d '/')
-```
-
-You can additionaly specifiy a custom tag for your image (default tag
-is `snap-polarimetric:latest`):
-
-```bash
-make build UID=<UID> DOCKER_TAG=<docker tag>
-```
-
-if you don't specify the docker tag, it gets the default value of `latest`.
-
-### Push the image to the UP42 registry
-
-You first need to login into the UP42 docker registry.
-
-```bash
-make login USER=me@example.com
-```
-
-where `me@example.com` should be replaced by your username, which is
-the email address you use in UP42.
-
-Now you can finally push the image to the UP42 docker registry:
-
-```bash
-make push UID=<UID>
-```
-
-where `<UID>` is user ID referenced above. Again using the copy &
-pasting on the clipboard.
-
-```bash
-# mac: OS X.
-make build UID=$(pbpaste | cut -f 2 -d '/')
-
-# Linux.
-make build UID=$(xsel --clipboard --output | cut -f 2 -d '/')
-```
-```bash
-make push UID=<UID>
-```
-Note that if you specified a custom docker tag when you built the image, you
-need to pass it now to `make`.
-
-```bash
-make push UID=<UID> DOCKER_TAG=<docker tag>
-```
-
-where `<UID>` is user ID referenced above. Again using the copy &
-pasting on the clipboard.
-
-```bash
-# mac: OS X.
-make build UID=$(pbpaste | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
-
-# Linux.
-make build UID=$(xsel --clipboard --output | cut -f 2 -d '/') DOCKER_TAG=<docker tag>
-```
-
-After the image is pushed you should be able to see your custom block
-in the [console](https://console.up42.dev/custom-blocks/) and you can
-now use the block in a workflow.
-
-### Run the processing block locally
-
-#### Configure the job
-
-To run the docker image locally you need first to configure the job
-with the parameters specific to this block. Create a `params.json`
-like this:
-
-```js
-{
-  "polarisations": <array polarizations>,
-  "mask": <array mask type>,
-  "tcorrection": <boolean>
-}
-```
-where:
-
-+ `<array polarizations>`: JS array of possible polarizations: `"VV"`,
-  `"VH"`, `"HV"`, `"HH"`.
-+ `<array of mask type>`: JS array of possible mask `"sea"` or `"land"`.
-+ `<boolean>`: `true` or `false` stating if terrain correction is to
-  be done or not.
-
-Here is an example `params.json`:
-
-```js
-{
-  "polarisations": ["VV"],
-  "mask": ["sea"],
-  "tcorrection": false
-}
-```
-#### Get the data
-
-A radar image is needed for the block to run. Such image can be
-obtained by creating a workflow with a single **Sentinel 1 L1C GRD**
-data block and download the the result.
-
-Then create the directory `/tmp/e2e_snap_polarimetric/`:
-
-```bash
-mkdir /tmp/e2e_snap_polarimetric
-```
-
-Now untar the tarball with the result in that directory:
-
-```bash
-tar -C /tmp/e2e_snap_polarimetric -zxvf <downloaded tarball>
-```
-#### Run the block
-
-```bash
-make run
-```
-
-If set a custom docker tag then the command to run the block is:
-
-```bash
-make run DOCKER_TAG=<docker tag>
-```
-
-### Local development
-
-#### Install the required libraries
-
-First create a virtual environment either by using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
-or [virtualenv](https://virtualenv.pypa.io/en/latest/).
-
-In the case of using virtualenvwrapper do:
-
-```bash
-mkvirtualenv -p $(which python3.7) up42-snap
-```
-
-In the case of using virtualenv do:
-
-```bash
-virtualenv -p $(which python3.7) up42-snap
-```
-
-After creating a virtual environment and activating it, all the necessary libraries can be installed on this environment by doing:
+Install the necessary Python libraries via:
 
 ```bash
 make install
 ```
 
-#### Run the tests
+## Testing the block locally
 
-This project uses [pytest](https://docs.pytest.org/en/latest/) for
-testing.  To run the tests, first create two empty `/tmp/input/` and
-`/tmp/output` directories. The output will be written to the
-`/tmp/output/` directory.  Finally, to run the test do as following:
+Before uploading the block to the UP42 platform, we encourage you to run the following local tests and validations to
+ensure that the block works as expected, conforms to the UP42 specifications and could be successfully applied in a
+UP42 workflow.
+
+### Run the unit tests
+
+By successfully running the implemented Python unit tests you can ensure that the block processing functionality works
+as expected. This project uses [pytest](https://docs.pytest.org/en/latest/) for testing, which was installed in
+the previous step. Run the unit tests via:
 
 ```bash
 make test
 ```
 
-Now you need to [build](#build-the-docker-images) and
-[run](#run-the-processing-block-locally) the block locally.
+### Validate the manifest
 
-The e2e tests provided here make sure the blocks output conforms to the platform's
-requirements. Run the e2e tests with:
+Then test if the block manifest is valid. The
+[UP42manifest.json](https://github.com/up42/snap-polarimetric/blob/master/blocks/snap-polarimetric/UP42Manifest.json)
+file contains the block capabilities. They define what kind of data a block accepts and provides, which parameters
+can be used with the block etc. See the
+[UP42 block capabilities documentation](https://docs.up42.com/reference/capabilities.html?highlight=capabilities).
+Validate the manifest via:
+
 ```bash
-# WARNING: this test require you set sufficient memory and disk capacity in your
-# docker setup. It will take a significant amount of time to complete
-# in a standard machine!
+make validate
+```
+
+### Run the end-to-end test
+
+In order to run the final end-to-end (`e2e`) test the block code needs to be dockerized (put in a container that later on
+would be uploaded to UP42). The end-to-end test makes sure the block's output actually conforms to the platform's requirements.
+
+First build the docker image locally.
+
+```bash
+make build
+```
+
+Run the `e2e` tests with:
+
+```bash
+# WARNING: This test carries out the complete preprocessing chain for a full Sentinel-1 image.
+# This requires sufficient memory and disk capacity settings in your docker setup.
+# Go to Docker > Preferences > Advanced and increase Memory to >8GB and Swap to >2GB.
+# This test will take about 2 hours to complete on a standard machine! Please be patient.
+
 make e2e
 ```
 
-Note that by default `tcorrection` parameter is set to `False` to speed up the test.
-If you want to test the full feature set make sure you set it to `True`.
+
+## Pushing the block to the UP42 platform
+
+First login to the UP42 docker registry. `me@example.com` needs to be replaced by your **UP42 username**,
+which is the email address you use on the UP42 website.
+
+```bash
+make login USER=me@example.com
+```
+
+In order to push the block to the UP42 platform, you need to build the block Docker container with your
+**UP42 USER-ID**. To get your USER-ID, go to the [UP42 custom-blocks menu](https://console.up42.com/custom-blocks).
+Click on "`PUSH a BLOCK to THE PLATFORM`" and copy your USERID from the command shown on the last line at
+"`Push the image to the UP42 Docker registry`". The USERID will look similar to this:
+`63uayd50-z2h1-3461-38zq-1739481rjwia`
+
+Pass the USER-ID to the build command:
+```bash
+make build UID=<UID>
+
+# As an example: make build UID=63uayd50-z2h1-3461-38zq-1739481rjwia
+```
+
+Now you can finally push the image to the UP42 docker registry, again passing in your USER-ID:
+
+```bash
+make push UID=<UID>
+
+# As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia
+```
+
+**Success!** The block will now appear in the [UP42 custom blocks menu](https://console.up42.com/custom-blocks/) menu
+and can be selected under the *Custom blocks* tab when building a workflow.
+
+<p align="center">
+  <img width="500" src="https://i.ibb.co/YpmwxY2/custom-block-successfully-uploaded.png">
+</p>
+
+### Optional: Updating an existing custom block
+
+If you want to update a custom block on UP42, you need to build the Docker container with an updated version:
+The default docker tag is `snap-polarimetric` and the version is set to `latest`.
+
+```bash
+make build UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
+
+# As an example: docker build UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric DOCKER_VERSION=1.0
+```
+
+Then push the block container with the updated tag and version:
+
+```bash
+make push UID=<UID> DOCKER_TAG=<docker tag> DOCKER_VERSION=<docker version>
+
+# As an example: make push UID=63uayd50-z2h1-3461-38zq-1739481rjwia DOCKER_TAG=snap-polarimetric DOCKER_VERSION=1.0
+```
+
 
 ## Support
 
- 1. Open an issue here.
- 2. Reach out to us on
-      [gitter](https://gitter.im/up42-com/community).
- 3. Mail us [support@up42.com](mailto:support@up42.com).
+Open a **github issue** in this repository or send us an **email** at [support@up42.com](mailto:support@up42.com),
+we are happy to answer your questions!
