@@ -4,3 +4,4 @@ pytest-pylint
 pytest-cov
 pytest-mypy
 rasterio
+black
