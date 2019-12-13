@@ -14,9 +14,16 @@ import xml.etree.ElementTree as Et
 from geojson import FeatureCollection, Feature
 import rasterio
 
-from helper import (load_params, load_metadata,
-                    ensure_data_directories_exist, save_metadata, get_logger,
-                    read_write_bigtiff, SENTINEL1_L1C_GRD, SNAP_POLARIMETRIC)
+from helper import (
+    load_params,
+    load_metadata,
+    ensure_data_directories_exist,
+    save_metadata,
+    get_logger,
+    read_write_bigtiff,
+    SENTINEL1_L1C_GRD,
+    SNAP_POLARIMETRIC,
+)
 from capabilities import set_capability
 
 LOGGER = get_logger(__name__)
@@ -30,6 +37,7 @@ class WrongPolarizationError(ValueError):
     This class passes to the next input file, if the current input file
     does not include the polarization.
     """
+
     pass
 
 
@@ -42,20 +50,21 @@ class SNAPPolarimetry:
         # the SNAP xml graph template path
         self.params = params
         try:
-            params['mask']
+            params["mask"]
         except KeyError:
-            params['mask'] = None
+            params["mask"] = None
 
         try:
-            params['tcorrection']
+            params["tcorrection"]
         except KeyError:
-            params['tcorrection'] = True
+            params["tcorrection"] = True
 
-        self.path_to_template = Path(__file__).parent.\
-            joinpath('template/snap_polarimetry_graph.xml')
+        self.path_to_template = Path(__file__).parent.joinpath(
+            "template/snap_polarimetry_graph.xml"
+        )
 
         # the temporary output path for the generated SNAP graphs
-        self.path_to_tmp_out = Path('/tmp')
+        self.path_to_tmp_out = Path("/tmp")
 
     @staticmethod
     def validate_polarisations(req_polarisations: list, avail_polarisations: list):
@@ -88,8 +97,10 @@ class SNAPPolarimetry:
 
         tiff_file_list = list(safe_file_path.joinpath("measurement").glob("*.tiff"))
 
-        pols = [(str(tiff_file_path.stem).split("-")[3]).upper()
-                for tiff_file_path in tiff_file_list]
+        pols = [
+            (str(tiff_file_path.stem).split("-")[3]).upper()
+            for tiff_file_path in tiff_file_list
+        ]
 
         return pols
 
@@ -118,15 +129,19 @@ class SNAPPolarimetry:
         variables based on the given substitutions
         """
         src = self.path_to_template
-        path_to_temp = Path(__file__).parent.joinpath('template/')
+        path_to_temp = Path(__file__).parent.joinpath("template/")
 
-        shutil.copy(src, Path(path_to_temp).joinpath("snap_polarimetry_graph_%s.xml" % "copy"))
-        dst = Path(__file__).parent.joinpath("template/snap_polarimetry_graph_%s.xml" % "copy")
+        shutil.copy(
+            src, Path(path_to_temp).joinpath("snap_polarimetry_graph_%s.xml" % "copy")
+        )
+        dst = Path(__file__).parent.joinpath(
+            "template/snap_polarimetry_graph_%s.xml" % "copy"
+        )
 
-        if self.params['mask'] is None:
+        if self.params["mask"] is None:
             self.revise_graph_xml(dst)
             LOGGER.info("No masking.")
-        if self.params['tcorrection'] is False:
+        if self.params["tcorrection"] is False:
             self.revise_graph_xml(dst)
             LOGGER.info("No terrain correction.")
 
@@ -140,34 +155,43 @@ class SNAPPolarimetry:
         Returns the target path where the generated SNAP xml graph file should be stored
         """
 
-        return Path(self.path_to_tmp_out).joinpath("%s_%s.xml"
-                                                   % (self.safe_file_name(feature), polarisation))
+        return Path(self.path_to_tmp_out).joinpath(
+            "%s_%s.xml" % (self.safe_file_name(feature), polarisation)
+        )
 
-    def generate_snap_graph(self, feature: Feature, polarisation: str, out_file_pol: str):
+    def generate_snap_graph(
+        self, feature: Feature, polarisation: str, out_file_pol: str
+    ):
         """
         Generates the snap graph xml file for the
         given feature, based on the snap graph xml template
         """
-        if self.params['mask'] == ['sea']:
-            result = self.process_template({
-                'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': out_file_pol,
-                'upcase_polarisation': polarisation.upper(),
-                'mask_type': 'false'
-            })
-        elif self.params['mask'] == ['land']:
-            result = self.process_template({
-                'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': out_file_pol,
-                'upcase_polarisation': polarisation.upper(),
-                'mask_type': 'true'
-            })
+        if self.params["mask"] == ["sea"]:
+            result = self.process_template(
+                {
+                    "read_file_manifest_path": self.manifest_file_location(feature),
+                    "downcase_polarisation": out_file_pol,
+                    "upcase_polarisation": polarisation.upper(),
+                    "mask_type": "false",
+                }
+            )
+        elif self.params["mask"] == ["land"]:
+            result = self.process_template(
+                {
+                    "read_file_manifest_path": self.manifest_file_location(feature),
+                    "downcase_polarisation": out_file_pol,
+                    "upcase_polarisation": polarisation.upper(),
+                    "mask_type": "true",
+                }
+            )
         else:
-            result = self.process_template({
-                'read_file_manifest_path': self.manifest_file_location(feature),
-                'downcase_polarisation': out_file_pol,
-                'upcase_polarisation': polarisation.upper()
-            })
+            result = self.process_template(
+                {
+                    "read_file_manifest_path": self.manifest_file_location(feature),
+                    "downcase_polarisation": out_file_pol,
+                    "upcase_polarisation": polarisation.upper(),
+                }
+            )
 
         self.target_snap_graph_path(feature, polarisation).write_text(result)
 
@@ -183,8 +207,8 @@ class SNAPPolarimetry:
         root = tree.getroot()
         all_nodes = root.findall("node")
         for index, _ in enumerate(all_nodes):
-            if all_nodes[index].attrib['id'] == 'Terrain-Correction':
-                all_nodes[index].find('parameters')[1].text = 'ASTER 1sec GDEM'
+            if all_nodes[index].attrib["id"] == "Terrain-Correction":
+                all_nodes[index].find("parameters")[1].text = "ASTER 1sec GDEM"
             tree.write(dst)
 
     @staticmethod
@@ -221,13 +245,18 @@ class SNAPPolarimetry:
         available_pols = self.extract_polarisations(input_file_path)
 
         if not self.validate_polarisations(requested_pols, available_pols):
-            raise WrongPolarizationError("Polarization missing; proceeding to next file")
+            raise WrongPolarizationError(
+                "Polarization missing; proceeding to next file"
+            )
 
         for polarisation in requested_pols:
 
             # Construct output snap processing file path with SAFE id plus polarization
             # i.e. S1A_IW_GRDH_1SDV_20190928T051659_20190928T051724_029217_035192_D2A2_vv
-            out_file_pol = "/tmp/input/%s_%s" % (input_file_path.stem, polarisation.lower())
+            out_file_pol = "/tmp/input/%s_%s" % (
+                input_file_path.stem,
+                polarisation.lower(),
+            )
 
             self.generate_snap_graph(feature, polarisation, out_file_pol)
 
@@ -242,7 +271,9 @@ class SNAPPolarimetry:
             return_value = os.system(cmd)
 
             if return_value:
-                LOGGER.error("SNAP did not finish successfully with error code %d", return_value)
+                LOGGER.error(
+                    "SNAP did not finish successfully with error code %d", return_value
+                )
                 sys.exit(return_value)
 
             out_files.append(out_file_pol)
@@ -258,7 +289,7 @@ class SNAPPolarimetry:
         results: List[Feature] = []
         out_dict: dict = {}
         for in_feature in metadata.get("features"):
-            coordinate = in_feature['bbox']
+            coordinate = in_feature["bbox"]
             self.assert_dem(coordinate)
             try:
                 processed_graphs = self.process_snap(in_feature, polarisations)
@@ -270,23 +301,31 @@ class SNAPPolarimetry:
                     os.mkdir(out_path)
                 for out_polarisation in processed_graphs:
                     # Besides the path we only need to change the capabilities
-                    shutil.move(("%s.tif" % out_polarisation),
-                                ("%s%s.tif" % (out_path, out_polarisation.split('_')[-1])))
+                    shutil.move(
+                        ("%s.tif" % out_polarisation),
+                        ("%s%s.tif" % (out_path, out_polarisation.split("_")[-1])),
+                    )
                 del out_feature["properties"][SENTINEL1_L1C_GRD]
-                set_capability(out_feature,
-                               SNAP_POLARIMETRIC,
-                               processed_tif_uuid+".tif")
+                set_capability(
+                    out_feature, SNAP_POLARIMETRIC, processed_tif_uuid + ".tif"
+                )
                 results.append(out_feature)
-                out_dict[processed_tif_uuid] = {'id': processed_tif_uuid,
-                                                'z': [i.split('_')[-1] for i in processed_graphs],
-                                                'out_path': out_path}
-                Path(__file__).parent.joinpath("template/"\
-                                               "snap_polarimetry_graph_%s.xml" % "copy").unlink()
+                out_dict[processed_tif_uuid] = {
+                    "id": processed_tif_uuid,
+                    "z": [i.split("_")[-1] for i in processed_graphs],
+                    "out_path": out_path,
+                }
+                Path(__file__).parent.joinpath(
+                    "template/" "snap_polarimetry_graph_%s.xml" % "copy"
+                ).unlink()
             except WrongPolarizationError:
-                LOGGER.error("%s: some or all of the polarisations (%r) don't exist "\
-                             "in this product (%s), skipping.",
-                             "WrongPolarizationError", polarisations,
-                             self.safe_file_name(in_feature))
+                LOGGER.error(
+                    "%s: some or all of the polarisations (%r) don't exist "
+                    "in this product (%s), skipping.",
+                    "WrongPolarizationError",
+                    polarisations,
+                    self.safe_file_name(in_feature),
+                )
                 continue
 
         return FeatureCollection(results), out_dict
@@ -319,20 +358,20 @@ class SNAPPolarimetry:
         tree = Et.parse(xml_file)
         root = tree.getroot()
         all_nodes = root.findall("node")
-        if self.params['mask'] is None:
+        if self.params["mask"] is None:
             for index, _ in enumerate(all_nodes):
-                if all_nodes[index].attrib['id'] == 'Land-Sea-Mask':
+                if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
                     root.remove(all_nodes[index])
-                    params = all_nodes[index + 1].find('sources')
-                    params[0].attrib['refid'] = all_nodes[index - 1].attrib['id']
+                    params = all_nodes[index + 1].find("sources")
+                    params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
             tree.write(xml_file)
 
-        if self.params['tcorrection'] is False:
+        if self.params["tcorrection"] is False:
             for index, _ in enumerate(all_nodes):
-                if all_nodes[index].attrib['id'] == 'Terrain-Correction':
+                if all_nodes[index].attrib["id"] == "Terrain-Correction":
                     root.remove(all_nodes[index])
-                    params = all_nodes[index + 1].find('sources')
-                    params[0].attrib['refid'] = all_nodes[index - 1].attrib['id']
+                    params = all_nodes[index + 1].find("sources")
+                    params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
             tree.write(xml_file)
 
     @staticmethod
@@ -347,11 +386,14 @@ class SNAPPolarimetry:
         for pol in list_pol:
             Path(output_filepath).joinpath("%s.tif" % pol).unlink()
         # Rename the final output to be consistent with the data id.
-        Path("%s%s.tif" % (output_filepath, "stack")).rename\
-            (Path("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem)))
+        Path("%s%s.tif" % (output_filepath, "stack")).rename(
+            Path("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem))
+        )
         # Move the renamed file to parent directory
-        shutil.move("%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem),
-                    "%s" % Path("%s" % output_filepath).parent)
+        shutil.move(
+            "%s%s.tif" % (output_filepath, Path("%s" % output_filepath).stem),
+            "%s" % Path("%s" % output_filepath).parent,
+        )
         # Remove the child directory
         shutil.rmtree(Path(output_filepath))
 
@@ -367,6 +409,10 @@ class SNAPPolarimetry:
         result, out_dict = pol_processor.process(input_metadata, params)
         save_metadata(result)
         for out_id in out_dict:
-            if params['mask'] is not None:
-                pol_processor.post_process(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
-            pol_processor.rename_final_stack(out_dict[out_id]['out_path'], out_dict[out_id]['z'])
+            if params["mask"] is not None:
+                pol_processor.post_process(
+                    out_dict[out_id]["out_path"], out_dict[out_id]["z"]
+                )
+            pol_processor.rename_final_stack(
+                out_dict[out_id]["out_path"], out_dict[out_id]["z"]
+            )

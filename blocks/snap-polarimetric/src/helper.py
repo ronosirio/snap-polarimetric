@@ -9,7 +9,7 @@ import rasterio
 from geojson import FeatureCollection, Feature
 
 
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 SENTINEL1_L1C_GRD = "up42.data.scene.sentinel1_l1c_grd"
 SNAP_POLARIMETRIC = "up42.data.aoiclipped"
 
@@ -33,8 +33,8 @@ def ensure_data_directories_exist():
     """
     This method checks input and output directories for data flow.
     """
-    Path('/tmp/input/').mkdir(parents=True, exist_ok=True)
-    Path('/tmp/output/').mkdir(parents=True, exist_ok=True)
+    Path("/tmp/input/").mkdir(parents=True, exist_ok=True)
+    Path("/tmp/output/").mkdir(parents=True, exist_ok=True)
 
 
 def load_params() -> dict:
@@ -42,7 +42,7 @@ def load_params() -> dict:
     Get the parameters for the current task directly from the task parameters.
     """
     helper_logger = get_logger(__name__)
-    data: str = os.environ.get("UP42_TASK_PARAMETERS", '{}')
+    data: str = os.environ.get("UP42_TASK_PARAMETERS", "{}")
     helper_logger.debug("Fetching parameters for this block: %s", data)
     if data == "":
         data = "{}"
@@ -54,8 +54,8 @@ def load_metadata() -> FeatureCollection:
     Get the geojson metadata from the provided location
     """
     ensure_data_directories_exist()
-    if Path('/tmp/input/data.json').exists():
-        with Path('/tmp/input/data.json').open() as f_p:
+    if Path("/tmp/input/data.json").exists():
+        with Path("/tmp/input/data.json").open() as f_p:
             data = json.loads(f_p.read())
 
         features = []
@@ -72,7 +72,7 @@ def save_metadata(result: FeatureCollection):
     Save the geojson metadata to the provided location
     """
     ensure_data_directories_exist()
-    with Path('/tmp/output/data.json').open(mode='w') as f_p:
+    with Path("/tmp/output/data.json").open(mode="w") as f_p:
         f_p.write(json.dumps(result))
 
 
@@ -84,16 +84,12 @@ def read_write_bigtiff(out_path, pol):
         with rasterio.open("%s%s.tif" % (out_path, pol[0])) as src0:
             kwargs = src0.profile
             kwargs.update(
-                bigtiff='YES',  # Output will be larger than 4GB
-                compress='lzw'
+                bigtiff="YES", compress="lzw"  # Output will be larger than 4GB
             )
 
             windows = src0.block_windows(1)
 
-            with rasterio.open(
-                    "%s%s.tif" % (out_path, "stack"),
-                    'w',
-                    **kwargs) as dst:
+            with rasterio.open("%s%s.tif" % (out_path, "stack"), "w", **kwargs) as dst:
                 for b_id, layer in enumerate(pol, start=1):
                     src = rasterio.open("%s%s.tif" % (out_path, layer))
                     for _, window in windows:
