@@ -7,6 +7,7 @@ from pathlib import Path
 import logging
 import rasterio
 from geojson import FeatureCollection, Feature
+from stac import STACQuery
 
 
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -41,12 +42,27 @@ def load_params() -> dict:
     """
     Get the parameters for the current task directly from the task parameters.
     """
-    helper_logger = get_logger(__name__)
-    data: str = os.environ.get("UP42_TASK_PARAMETERS", "{}")
-    helper_logger.debug("Fetching parameters for this block: %s", data)
+    logger = get_logger(__name__)
+    data: str = os.environ.get(
+        "UP42_TASK_PARAMETERS", "{}",
+    )
+    logger.debug("Fetching parameters for this block: %s", data)
     if data == "":
         data = "{}"
     return json.loads(data)
+
+
+def load_query(validator=lambda x: True) -> STACQuery:
+    """
+    Get the query for the current task directly from the task parameters.
+    """
+    logger = get_logger(__name__)
+    data: str = os.environ.get(
+        "UP42_TASK_PARAMETERS", "{}",
+    )
+    logger.debug("Raw task parameters from UP42_TASK_PARAMETERS are: %s", data)
+    query_data = json.loads(data)
+    return STACQuery.from_dict(query_data, validator)
 
 
 def load_metadata() -> FeatureCollection:

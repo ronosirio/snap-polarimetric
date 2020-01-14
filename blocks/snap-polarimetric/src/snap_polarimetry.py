@@ -12,6 +12,7 @@ import copy
 
 import xml.etree.ElementTree as Et
 from geojson import FeatureCollection, Feature
+from shapely.geometry import shape
 import rasterio
 
 from helper import (
@@ -25,6 +26,7 @@ from helper import (
     SNAP_POLARIMETRIC,
 )
 from capabilities import set_capability
+from stac import STACQuery
 
 LOGGER = get_logger(__name__)
 PARAMS_FILE = os.environ.get("PARAMS_FILE")
@@ -46,18 +48,15 @@ class SNAPPolarimetry:
     Polarimetric data preparation using SNAP
     """
 
-    def __init__(self, params):
+    def __init__(self, params: STACQuery):
         # the SNAP xml graph template path
-        self.params = params
-        try:
-            params["mask"]
-        except KeyError:
-            params["mask"] = None
 
-        try:
-            params["tcorrection"]
-        except KeyError:
-            params["tcorrection"] = True
+        params = STACQuery.from_dict(params, lambda x: True)
+        params.set_param_if_not_exists("mask", None)
+        params.set_param_if_not_exists("tcorrection", True)
+        params.set_param_if_not_exists("polarisations", True)
+
+        self.params = params
 
         self.path_to_template = Path(__file__).parent.joinpath(
             "template/snap_polarimetry_graph.xml"
@@ -138,12 +137,7 @@ class SNAPPolarimetry:
             "template/snap_polarimetry_graph_%s.xml" % "copy"
         )
 
-        if self.params["mask"] is None:
-            self.revise_graph_xml(dst)
-            LOGGER.info("No masking.")
-        if self.params["tcorrection"] is False:
-            self.revise_graph_xml(dst)
-            LOGGER.info("No terrain correction.")
+        self.revise_graph_xml(dst)
 
         file_pointer = open(dst)
         template = Template(file_pointer.read())
@@ -159,6 +153,29 @@ class SNAPPolarimetry:
             "%s_%s.xml" % (self.safe_file_name(feature), polarisation)
         )
 
+    def create_substitutions_dict(
+        self, feature: Feature, polarisation: str, out_file_pol: str
+    ):
+        dict_default = {
+            "read_file_manifest_path": self.manifest_file_location(feature),
+            "downcase_polarisation": out_file_pol,
+            "upcase_polarisation": polarisation.upper(),
+        }
+
+        try:
+            poly = self.params.geometry()
+            geom = shape(poly)
+            dict_default["polygon"] = geom.wkt
+        except ValueError:
+            LOGGER.info("no ROI set, SNAP will process the whole scene.")
+
+        if self.params.mask == ["sea"]:
+            dict_default["mask_type"] = "false"
+        if self.params.mask == ["land"]:
+            dict_default["mask_type"] = "true"
+
+        return dict_default
+
     def generate_snap_graph(
         self, feature: Feature, polarisation: str, out_file_pol: str
     ):
@@ -166,33 +183,10 @@ class SNAPPolarimetry:
         Generates the snap graph xml file for the
         given feature, based on the snap graph xml template
         """
-        if self.params["mask"] == ["sea"]:
-            result = self.process_template(
-                {
-                    "read_file_manifest_path": self.manifest_file_location(feature),
-                    "downcase_polarisation": out_file_pol,
-                    "upcase_polarisation": polarisation.upper(),
-                    "mask_type": "false",
-                }
-            )
-        elif self.params["mask"] == ["land"]:
-            result = self.process_template(
-                {
-                    "read_file_manifest_path": self.manifest_file_location(feature),
-                    "downcase_polarisation": out_file_pol,
-                    "upcase_polarisation": polarisation.upper(),
-                    "mask_type": "true",
-                }
-            )
-        else:
-            result = self.process_template(
-                {
-                    "read_file_manifest_path": self.manifest_file_location(feature),
-                    "downcase_polarisation": out_file_pol,
-                    "upcase_polarisation": polarisation.upper(),
-                }
-            )
-
+        dict_default = self.create_substitutions_dict(
+            feature, polarisation, out_file_pol
+        )
+        result = self.process_template(dict_default)
         self.target_snap_graph_path(feature, polarisation).write_text(result)
 
     @staticmethod
@@ -358,15 +352,39 @@ class SNAPPolarimetry:
         tree = Et.parse(xml_file)
         root = tree.getroot()
         all_nodes = root.findall("node")
-        if self.params["mask"] is None:
+        if (
+            self.params.bbox is None
+            and self.params.contains is None
+            and self.params.intersects is None
+        ):
+            LOGGER.info("No clipping.")
             for index, _ in enumerate(all_nodes):
-                if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
+                if all_nodes[index].attrib["id"] == "Subset":
                     root.remove(all_nodes[index])
                     params = all_nodes[index + 1].find("sources")
                     params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
             tree.write(xml_file)
 
-        if self.params["tcorrection"] is False:
+            if self.params.mask is None:
+                LOGGER.info("No masking.")
+                for index, _ in enumerate(all_nodes):
+                    if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
+                        root.remove(all_nodes[index])
+                        params = all_nodes[index + 1].find("sources")
+                        params[0].attrib["refid"] = all_nodes[index - 2].attrib["id"]
+                tree.write(xml_file)
+        else:
+            if self.params.mask is None:
+                LOGGER.info("No masking.")
+                for index, _ in enumerate(all_nodes):
+                    if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
+                        root.remove(all_nodes[index])
+                        params = all_nodes[index + 1].find("sources")
+                        params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
+                tree.write(xml_file)
+
+        if self.params.tcorrection is False:
+            LOGGER.info("No terrain correction.")
             for index, _ in enumerate(all_nodes):
                 if all_nodes[index].attrib["id"] == "Terrain-Correction":
                     root.remove(all_nodes[index])

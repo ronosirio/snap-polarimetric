@@ -17,7 +17,11 @@ import pytest
 
 # pylint: disable=wrong-import-position
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
-from context import SNAPPolarimetry, ensure_data_directories_exist, SNAP_POLARIMETRIC
+from context import (
+    SNAPPolarimetry,
+    ensure_data_directories_exist,
+    SNAP_POLARIMETRIC,
+)
 
 TEST_POLARISATIONS = [
     (["VV"], ["VV"], True),
@@ -48,7 +52,10 @@ def fixture_mainclass():
     This method initiates the SNAPPolarimetry( class from snap_polarimetry to be
     used to testing.
     """
-    params = {"mask": ["sea"], "tcorrection": "false"}
+    params = {
+        "mask": ["sea"],
+        "tcorrection": "false",
+    }
     return SNAPPolarimetry(params)
 
 
@@ -281,6 +288,47 @@ def test_manifest_file_location(fixture_mainclass, safe_file):
     )
 
 
+def test_create_substitutions_dict(safe_file):
+    params = {
+        "intersects": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [13.365898, 52.491561],
+                    [13.385296, 52.491561],
+                    [13.385296, 52.506191],
+                    [13.365898, 52.506191],
+                    [13.365898, 52.491561],
+                ]
+            ],
+        },
+        "mask": ["sea"],
+        "tcorrection": "false",
+    }
+
+    test_feature = safe_file.feature
+    dict_default = SNAPPolarimetry(params).create_substitutions_dict(
+        test_feature, "VV", "vv"
+    )
+    assert (
+        dict_default["polygon"] == "POLYGON ((13.365898 52.491561, 13.385296 52.491561,"
+        " 13.385296 52.506191, 13.365898 52.506191, 13.365898 52.491561))"
+    )
+
+
+def test_create_substitutions_dict_no_subseting(safe_file):
+    params = {
+        "mask": ["sea"],
+        "tcorrection": "false",
+    }
+
+    test_feature = safe_file.feature
+    dict_default = SNAPPolarimetry(params).create_substitutions_dict(
+        test_feature, "VV", "vv"
+    )
+    assert "polygon" not in dict_default
+
+
 # pylint: disable=redefined-outer-name
 def test_generate_snap_graph(fixture_mainclass, safe_file):
     """
@@ -414,7 +462,7 @@ def test_process_multiple_images_polarisations(fixture_mainclass, safe_files):
 
 
 @patch("os.system", lambda x: 0)
-def test_run_multiple_scenes(fixture_mainclass, safe_files):
+def test_run_multiple_scenes(safe_files):
     """
     This method test the functionality of the run method with multiple scenes.
     """
@@ -428,7 +476,9 @@ def test_run_multiple_scenes(fixture_mainclass, safe_files):
 
     _ = safe_files
 
-    fixture_mainclass.run()
+    os.environ["UP42_TASK_PARAMETERS"] = '{"mask": null, "tcorrection": false}'
+    # params = load_params()
+    SNAPPolarimetry.run()
 
     with open(Path("/tmp/output/data.json"), "rb") as f_p:
         test_featurecollection = geojson.load(f_p)
@@ -450,7 +500,7 @@ def test_run_multiple_scenes(fixture_mainclass, safe_files):
 
 
 @patch("os.system", lambda x: 0)
-def test_run_scene(fixture_mainclass, safe_file):
+def test_run_scene(safe_file):
     """
     This method test the functionality of the run method with one scene.
     """
@@ -463,7 +513,9 @@ def test_run_scene(fixture_mainclass, safe_file):
 
     _ = safe_file
 
-    fixture_mainclass.run()
+    os.environ["UP42_TASK_PARAMETERS"] = '{"mask": null, "tcorrection": false}'
+    # params = load_params()
+    SNAPPolarimetry.run()
 
     with open(Path("/tmp/output/data.json"), "rb") as f_p:
         test_featurecollection = geojson.load(f_p)

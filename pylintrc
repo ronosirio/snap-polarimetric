@@ -9,6 +9,7 @@ disable=
     missing-final-newline,
     too-many-boolean-expressions,
     bad-continuation,
+    no-member,
     fixme
 
 [FORMAT]

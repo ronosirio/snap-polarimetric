@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     RUN_CMD = (
         """docker run -v %s:/tmp \
-                 -e 'UP42_TASK_PARAMETERS={"mask": null, "tcorrection": false,\
+                 -e 'UP42_TASK_PARAMETERS={"bbox": [14.558086395263674, 
+                 53.4138293218823, 14.584178924560549, 53.433673900512616], "mask": null, "tcorrection": false,\
                     "polarisations": ["VV"]}' \
                   -it snap-polarimetric"""
         % TEST_DIR

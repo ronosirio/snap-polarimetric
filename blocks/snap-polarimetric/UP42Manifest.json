@@ -10,6 +10,9 @@
   "display_name": "SNAP Polarimetric Processing",
   "description": "This block provides a common polarimetric processing workflow with SNAP that operates ESA SAFE format scenes.",
   "parameters": {
+    "bbox": {"type": "array", "default": null},
+    "intersects": {"type": "geometry", "default":  null},
+    "contains": {"type": "geometry", "default": null},
     "polarisations": {
       "type": "array",
       "required": false,
