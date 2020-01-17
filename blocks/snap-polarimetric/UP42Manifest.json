@@ -23,7 +23,8 @@
         "enum": ["VV", "VH"]
       }},
     "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
-    "tcorrection": {"type":  "boolean", "default":  true}
+    "tcorrection": {"type":  "boolean", "default":  true},
+    "clip_to_aoi": {"type":  "boolean", "default":  false}
   },
   "machine": {
     "type": "xlarge"

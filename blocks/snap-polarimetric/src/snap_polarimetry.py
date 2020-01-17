@@ -52,6 +52,7 @@ class SNAPPolarimetry:
         # the SNAP xml graph template path
 
         params = STACQuery.from_dict(params, lambda x: True)
+        params.set_param_if_not_exists("clip_to_aoi", False)
         params.set_param_if_not_exists("mask", None)
         params.set_param_if_not_exists("tcorrection", True)
         params.set_param_if_not_exists("polarisations", True)
@@ -228,6 +229,22 @@ class SNAPPolarimetry:
             self.replace_dem()
             LOGGER.info("SRTM is been replace by ASTER GDEM.")
 
+    def assert_input_params(self):
+        if not self.params.clip_to_aoi:
+            if self.params.bbox or self.params.contains or self.params.intersects:
+                raise ValueError(
+                    "When clip_to_aoi is set to False, bbox, contains and intersects must be set to null."
+                )
+        else:
+            if (
+                self.params.bbox is None
+                and self.params.contains is None
+                and self.params.intersects is None
+            ):
+                raise ValueError(
+                    "When clip_to_aoi set to True, you MUST define one of bbox, contains or intersect."
+                )
+
     def process_snap(self, feature: Feature, requested_pols) -> list:
         """
         Wrapper method to facilitate the setup and the actual execution of the SNAP processing
@@ -279,6 +296,8 @@ class SNAPPolarimetry:
         Main wrapper method to facilitate snap processing per feature
         """
         polarisations: List = params.get("polarisations", ["VV"]) or ["VV"]
+
+        self.assert_input_params()
 
         results: List[Feature] = []
         out_dict: dict = {}

@@ -377,6 +377,41 @@ def test_extract_relevant_coordinate(fixture_mainclass):
     assert fixture_mainclass.extract_relevant_coordinate(bbox_2) == -55.15
 
 
+def test_assert_input_params():
+    params = {"mask": ["sea"], "tcorrection": "false", "clip_to_aoi": "true"}
+
+    # assert "polygon" not in dict_default
+    with pytest.raises(ValueError) as e:
+        SNAPPolarimetry(params).assert_input_params()
+    assert (
+        str(e.value)
+        == "When clip_to_aoi set to True, you MUST define one of bbox, contains or intersect."
+    )
+
+
+def test_assert_input_params_full():
+    params = {
+        "mask": ["sea"],
+        "tcorrection": "false",
+        "bbox": [
+            14.558086395263674,
+            53.4138293218823,
+            14.584178924560549,
+            53.433673900512616,
+        ],
+        "contains": None,
+        "intersects": None,
+    }
+
+    # assert "polygon" not in dict_default
+    with pytest.raises(ValueError) as e:
+        SNAPPolarimetry(params).assert_input_params()
+    assert (
+        str(e.value)
+        == "When clip_to_aoi is set to False, bbox, contains and intersects must set to null."
+    )
+
+
 @patch("os.system", lambda x: 0)
 # pylint: disable=redefined-outer-name
 def test_process_snap(fixture_mainclass, safe_file):
