@@ -6,3 +6,4 @@ pytest-mypy
 rasterio
 black
 shapely
+ciso8601

@@ -408,7 +408,7 @@ def test_assert_input_params_full():
         SNAPPolarimetry(params).assert_input_params()
     assert (
         str(e.value)
-        == "When clip_to_aoi is set to False, bbox, contains and intersects must set to null."
+        == "When clip_to_aoi is set to False, bbox, contains and intersects must be set to null."
     )
 
 
