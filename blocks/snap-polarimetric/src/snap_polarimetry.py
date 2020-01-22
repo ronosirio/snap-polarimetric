@@ -242,7 +242,8 @@ class SNAPPolarimetry:
                 and self.params.intersects is None
             ):
                 raise ValueError(
-                    "When clip_to_aoi set to True, you MUST define one of bbox, contains or intersect."
+                    "When clip_to_aoi set to True, you MUST define the same coordinates in bbox, contains"
+                    " or intersect for both the S1 and SNAP blocks."
                 )
 
     def process_snap(self, feature: Feature, requested_pols) -> list:

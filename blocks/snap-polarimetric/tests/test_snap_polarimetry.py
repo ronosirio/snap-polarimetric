@@ -385,7 +385,8 @@ def test_assert_input_params():
         SNAPPolarimetry(params).assert_input_params()
     assert (
         str(e.value)
-        == "When clip_to_aoi set to True, you MUST define one of bbox, contains or intersect."
+        == "When clip_to_aoi set to True, you MUST define the same coordinates in bbox, contains"
+        " or intersect for both the S1 and SNAP blocks."
     )
 
 
