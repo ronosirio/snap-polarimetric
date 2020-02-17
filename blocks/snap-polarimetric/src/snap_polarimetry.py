@@ -433,7 +433,13 @@ class SNAPPolarimetry:
             "%s" % Path("%s" % output_filepath).parent,
         )
         # Remove the child directory
-        shutil.rmtree(Path(output_filepath))
+        try:
+            shutil.rmtree(Path(output_filepath))
+        # Deleting subfolder sometimes does not work in temp, then remove all subfiles.
+        except (PermissionError, OSError):
+            files_to_delete = Path(output_filepath).rglob("*.*")
+            for file_path in files_to_delete:
+                file_path.unlink()
 
     @staticmethod
     def run():
