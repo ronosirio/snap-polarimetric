@@ -1,5 +1,5 @@
 {
-  "_up42_specification_version": 1,
+  "_up42_specification_version": 2,
   "name": "snap-polarimetric",
   "type": "processing",
   "tags": [
@@ -30,9 +30,31 @@
     "type": "xlarge"
   },
   "input_capabilities": {
-    "up42.data.scene.sentinel1_l1c_grd": {}
-  },
+    "raster": {
+        "up42_standard": {
+          "format": "SAFE",
+          "sensor": "Sentinel1GRD",
+          "dtype": "uint16",
+          "resolution": 10,
+          "bands": {
+            "or" : [
+              ["HH", "HV", "alpha"], ["VV", "VH", "alpha"], ["HH", "alpha"], ["VV", "alpha"]
+            ]
+          },
+          "processing_level": "l1"
+        }
+      }
+    },
   "output_capabilities": {
-    "up42.data.aoiclipped": {}
+    "raster": {
+        "up42_standard": {
+          "format": "GTiff",
+          "sensor": ">",
+          "dtype": ">",
+          "resolution": ">",
+          "bands": ">",
+          "processing_level": ">"
+        }
+      }
   }
 }
