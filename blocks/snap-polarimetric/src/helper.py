@@ -1,18 +1,18 @@
 """
 This module includes necessary helper functions that are used in the snap_polarimetry script.
 """
-import json
+from typing import Any
 import os
+import json
 from pathlib import Path
 import logging
+
 import rasterio
 from geojson import FeatureCollection, Feature
 from stac import STACQuery
 
 
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-SENTINEL1_L1C_GRD = "up42.data.scene.sentinel1_l1c_grd"
-SNAP_POLARIMETRIC = "up42.data.aoiclipped"
 
 
 def get_logger(name, level=logging.DEBUG):
@@ -112,3 +112,11 @@ def read_write_bigtiff(out_path, pol):
                         src_data = src.read(1, window=window)
                         dst.write_band(b_id, src_data, window=window)
                         dst.set_band_description(b_id, layer)
+
+
+def set_data_path(feature: Feature, value: Any) -> Feature:
+    """
+    This methods sets the output data path in the feature.
+    """
+    feature["properties"]["up42.data_path"] = value
+    return feature

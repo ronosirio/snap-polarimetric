@@ -600,7 +600,7 @@
           "insertionDate": 1569372654398
         },
         "attitude": {},
-        "up42.data.scene.sentinel1_l1c_grd": "7ee35114-c0c4-477d-970c-238721337873"
+        "up42.data_path": "7ee35114-c0c4-477d-970c-238721337873"
       }
     },
     {
@@ -1151,7 +1151,7 @@
           "insertionDate": 1568816238955
         },
         "attitude": {},
-        "up42.data.scene.sentinel1_l1c_grd": "0e5b9f5b-c8f3-48c2-ba0d-24146cc1d634"
+        "up42.data_path": "0e5b9f5b-c8f3-48c2-ba0d-24146cc1d634"
       }
     }
   ]

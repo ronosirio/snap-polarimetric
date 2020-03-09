@@ -20,7 +20,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../s
 from context import (
     SNAPPolarimetry,
     ensure_data_directories_exist,
-    SNAP_POLARIMETRIC,
 )
 
 TEST_POLARISATIONS = [
@@ -469,9 +468,9 @@ def test_process_multiple_polarisations(fixture_mainclass, safe_file):
     ]
     assert len(output_fc.features) == 1
     assert output_fc.features[0]["bbox"] == expected_bbox
-    assert output_fc.features[0]["properties"][SNAP_POLARIMETRIC] != ""
+    assert output_fc.features[0]["properties"]["up42.data_path"] != ""
     assert not Path(
-        "/tmp/output/" + output_fc.features[0]["properties"][SNAP_POLARIMETRIC]
+        "/tmp/output/" + output_fc.features[0]["properties"]["up42.data_path"]
     ).is_file()
 
 
@@ -491,9 +490,9 @@ def test_process_multiple_images_polarisations(fixture_mainclass, safe_files):
     expected_bbox = [138.196686, 34.809418, 141.303055, 36.713043]
     assert len(output_fc.features) == 2
     assert output_fc.features[0]["bbox"] == expected_bbox
-    assert output_fc.features[0]["properties"][SNAP_POLARIMETRIC] != ""
+    assert output_fc.features[0]["properties"]["up42.data_path"] != ""
     assert not Path(
-        "/tmp/output/" + output_fc.features[0]["properties"][SNAP_POLARIMETRIC]
+        "/tmp/output/" + output_fc.features[0]["properties"]["up42.data_path"]
     ).is_file()
 
 
@@ -521,11 +520,11 @@ def test_run_multiple_scenes(safe_files):
 
     assert Path(
         "/tmp/output/"
-        + test_featurecollection.features[0]["properties"][SNAP_POLARIMETRIC]
+        + test_featurecollection.features[0]["properties"]["up42.data_path"]
     ).is_file()
     assert Path(
         "/tmp/output/"
-        + test_featurecollection.features[1]["properties"][SNAP_POLARIMETRIC]
+        + test_featurecollection.features[1]["properties"]["up42.data_path"]
     ).is_file()
 
     # Clean up if exists
@@ -558,7 +557,7 @@ def test_run_scene(safe_file):
 
     assert Path(
         "/tmp/output/"
-        + test_featurecollection.features[0]["properties"][SNAP_POLARIMETRIC]
+        + test_featurecollection.features[0]["properties"]["up42.data_path"]
     ).is_file()
 
     # Clean up if exists

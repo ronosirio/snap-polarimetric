@@ -18,5 +18,4 @@ from helper import (
     get_logger,
     load_params,
     ensure_data_directories_exist,
-    SNAP_POLARIMETRIC,
 )

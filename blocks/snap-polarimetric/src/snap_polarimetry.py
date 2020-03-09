@@ -22,10 +22,8 @@ from helper import (
     save_metadata,
     get_logger,
     read_write_bigtiff,
-    SENTINEL1_L1C_GRD,
-    SNAP_POLARIMETRIC,
+    set_data_path,
 )
-from capabilities import set_capability
 from stac import STACQuery
 
 LOGGER = get_logger(__name__)
@@ -84,7 +82,7 @@ class SNAPPolarimetry:
         Returns the safe file name for the given feature (e.g. <safe_file_id>.SAFE)
         """
 
-        safe_file_id = feature.properties.get(SENTINEL1_L1C_GRD)
+        safe_file_id = feature.properties.get("up42.data_path")
         safe_path = Path("/tmp/input").joinpath(safe_file_id)
 
         return list(safe_path.glob("*.SAFE"))[0].name
@@ -110,7 +108,7 @@ class SNAPPolarimetry:
         (e.g. /tmp/input/<scene_id>/<safe_file_id>.SAFE)
         """
 
-        safe_file_id = feature.properties.get(SENTINEL1_L1C_GRD)
+        safe_file_id = feature.properties.get("up42.data_path")
 
         return Path("/tmp/input/").joinpath(safe_file_id, self.safe_file_name(feature))
 
@@ -309,7 +307,7 @@ class SNAPPolarimetry:
                 processed_graphs = self.process_snap(in_feature, polarisations)
                 LOGGER.info("SNAP processing is finished!")
                 out_feature = copy.deepcopy(in_feature)
-                processed_tif_uuid = out_feature.properties[SENTINEL1_L1C_GRD]
+                processed_tif_uuid = out_feature.properties["up42.data_path"]
                 out_path = "/tmp/output/%s/" % (processed_tif_uuid)
                 if not os.path.exists(out_path):
                     os.mkdir(out_path)
@@ -319,10 +317,8 @@ class SNAPPolarimetry:
                         ("%s.tif" % out_polarisation),
                         ("%s%s.tif" % (out_path, out_polarisation.split("_")[-1])),
                     )
-                del out_feature["properties"][SENTINEL1_L1C_GRD]
-                set_capability(
-                    out_feature, SNAP_POLARIMETRIC, processed_tif_uuid + ".tif"
-                )
+                del out_feature["properties"]["up42.data_path"]
+                set_data_path(out_feature, processed_tif_uuid + ".tif")
                 results.append(out_feature)
                 out_dict[processed_tif_uuid] = {
                     "id": processed_tif_uuid,
