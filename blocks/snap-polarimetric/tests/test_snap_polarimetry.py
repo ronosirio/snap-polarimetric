@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../s
 from context import (
     SNAPPolarimetry,
     ensure_data_directories_exist,
+    read_write_bigtiff,
 )
 
 TEST_POLARISATIONS = [
@@ -565,3 +566,17 @@ def test_run_scene(safe_file):
         shutil.rmtree("/tmp/output/")
     if os.path.exists("/tmp/input/data.json"):
         os.remove("/tmp/input/data.json")
+
+
+def test_read_write_bigtiff():
+    pol = ["vv", "vh"]
+    output_file_vv = Path("/tmp/input/vv.tif")
+    output_file_vh = Path("/tmp/input/vh.tif")
+    make_dummy_raster_file(output_file_vv)
+    make_dummy_raster_file(output_file_vh)
+
+    read_write_bigtiff("/tmp/input/", pol)
+
+    r = rio.open("/tmp/input/stack.tif")
+
+    assert r.count == 2

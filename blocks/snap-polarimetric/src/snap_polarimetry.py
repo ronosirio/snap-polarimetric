@@ -50,6 +50,9 @@ class SNAPPolarimetry:
         # the SNAP xml graph template path
 
         params = STACQuery.from_dict(params, lambda x: True)
+        params.set_param_if_not_exists("calibration_band", ["sigma"])
+        params.set_param_if_not_exists("specklefilter", True)
+        params.set_param_if_not_exists("lintodb", True)
         params.set_param_if_not_exists("clip_to_aoi", False)
         params.set_param_if_not_exists("mask", None)
         params.set_param_if_not_exists("tcorrection", True)
@@ -136,7 +139,18 @@ class SNAPPolarimetry:
             "template/snap_polarimetry_graph_%s.xml" % "copy"
         )
 
-        self.revise_graph_xml(dst)
+        params: dict = {
+            "Subset": self.params.clip_to_aoi,
+            "Land-Sea-Mask": self.params.mask,
+            "Speckle-Filter": self.params.specklefilter,
+            "Terrain-Correction": self.params.tcorrection,
+            "LinearToFromdB": self.params.lintodb,
+        }
+
+        for key, _ in params.items():
+            if not params[key]:
+                LOGGER.info("%s will be discarded.", key)
+                self.revise_graph_xml(dst, key)
 
         file_pointer = open(dst)
         template = Template(file_pointer.read())
@@ -159,6 +173,9 @@ class SNAPPolarimetry:
             "read_file_manifest_path": self.manifest_file_location(feature),
             "downcase_polarisation": out_file_pol,
             "upcase_polarisation": polarisation.upper(),
+            "sigma_band": "true",
+            "gamma_band": "false",
+            "beta_band": "false",
         }
 
         try:
@@ -172,6 +189,19 @@ class SNAPPolarimetry:
             dict_default["mask_type"] = "false"
         if self.params.mask == ["land"]:
             dict_default["mask_type"] = "true"
+
+        if self.params.calibration_band == ["sigma"]:
+            dict_default["band_type"] = "Sigma0"
+        elif self.params.calibration_band == ["gamma"]:
+            dict_default["sigma_band"] = "false"
+            dict_default["gamma_band"] = "true"
+            dict_default["band_type"] = "Gamma0"
+        elif self.params.calibration_band == ["beta"]:
+            dict_default["sigma_band"] = "false"
+            dict_default["beta_band"] = "true"
+            dict_default["band_type"] = "Beta0"
+        else:
+            LOGGER.error("Wrong calibration band type.")
 
         return dict_default
 
@@ -267,7 +297,6 @@ class SNAPPolarimetry:
                 input_file_path.stem,
                 polarisation.lower(),
             )
-
             self.generate_snap_graph(feature, polarisation, out_file_pol)
 
             cmd = GPT_CMD.format(
@@ -359,7 +388,8 @@ class SNAPPolarimetry:
             Path(output_filepath).joinpath("%s.tif" % pol).unlink()
             Path(update_name).rename(Path("%s%s.tif" % (output_filepath, pol)))
 
-    def revise_graph_xml(self, xml_file):
+    @staticmethod
+    def revise_graph_xml(xml_file, key: str):
         """
         This method checks whether, land-sea-mask or terrain-correction
         pre-processing step is needed or not. If not, it removes the
@@ -368,45 +398,13 @@ class SNAPPolarimetry:
         tree = Et.parse(xml_file)
         root = tree.getroot()
         all_nodes = root.findall("node")
-        if (
-            self.params.bbox is None
-            and self.params.contains is None
-            and self.params.intersects is None
-        ):
-            LOGGER.info("No clipping.")
-            for index, _ in enumerate(all_nodes):
-                if all_nodes[index].attrib["id"] == "Subset":
-                    root.remove(all_nodes[index])
-                    params = all_nodes[index + 1].find("sources")
-                    params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
-            tree.write(xml_file)
 
-            if self.params.mask is None:
-                LOGGER.info("No masking.")
-                for index, _ in enumerate(all_nodes):
-                    if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
-                        root.remove(all_nodes[index])
-                        params = all_nodes[index + 1].find("sources")
-                        params[0].attrib["refid"] = all_nodes[index - 2].attrib["id"]
-                tree.write(xml_file)
-        else:
-            if self.params.mask is None:
-                LOGGER.info("No masking.")
-                for index, _ in enumerate(all_nodes):
-                    if all_nodes[index].attrib["id"] == "Land-Sea-Mask":
-                        root.remove(all_nodes[index])
-                        params = all_nodes[index + 1].find("sources")
-                        params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
-                tree.write(xml_file)
-
-        if self.params.tcorrection is False:
-            LOGGER.info("No terrain correction.")
-            for index, _ in enumerate(all_nodes):
-                if all_nodes[index].attrib["id"] == "Terrain-Correction":
-                    root.remove(all_nodes[index])
-                    params = all_nodes[index + 1].find("sources")
-                    params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]
-            tree.write(xml_file)
+        for index, _ in enumerate(all_nodes):
+            if all_nodes[index].attrib["id"] == key:
+                root.remove(all_nodes[index])
+                params = all_nodes[index + 1].find("sources")
+                params[0].attrib["refid"] = all_nodes[index - 1].attrib["id"]  # type: ignore
+        tree.write(xml_file)
 
     @staticmethod
     def rename_final_stack(output_filepath, list_pol):

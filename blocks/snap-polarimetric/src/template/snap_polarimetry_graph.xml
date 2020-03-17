@@ -22,9 +22,9 @@
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
       <selectedPolarisations>${upcase_polarisation}</selectedPolarisations>
-      <outputSigmaBand>true</outputSigmaBand>
-      <outputGammaBand>false</outputGammaBand>
-      <outputBetaBand>false</outputBetaBand>
+      <outputSigmaBand>${sigma_band}</outputSigmaBand>
+      <outputGammaBand>${gamma_band}</outputGammaBand>
+      <outputBetaBand>${beta_band}</outputBetaBand>
     </parameters>
   </node>
   <node id="Subset">
@@ -33,7 +33,7 @@
       <sourceProduct refid="Calibration"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>Sigma0_${upcase_polarisation}</sourceBands>
+      <sourceBands>${band_type}_${upcase_polarisation}</sourceBands>
       <region>0,0,0,0</region>
       <referenceBand/>
       <geoRegion>${polygon}</geoRegion>
@@ -50,7 +50,7 @@
       <sourceProduct refid="Subset"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>Sigma0_${upcase_polarisation}</sourceBands>
+      <sourceBands>${band_type}_${upcase_polarisation}</sourceBands>
       <landMask>${mask_type}</landMask>
       <useSRTM>true</useSRTM>
       <geometry/>
@@ -64,7 +64,7 @@
       <sourceProduct refid="Land-Sea-Mask"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>Sigma0_${upcase_polarisation}</sourceBands>
+      <sourceBands>${band_type}_${upcase_polarisation}</sourceBands>
       <filter>Lee Sigma</filter>
       <filterSizeX>3</filterSizeX>
       <filterSizeY>3</filterSizeY>
@@ -84,7 +84,7 @@
       <sourceProduct refid="Speckle-Filter"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>Sigma0_${upcase_polarisation}</sourceBands>
+      <sourceBands>${band_type}_${upcase_polarisation}</sourceBands>
       <demName>SRTM 3Sec</demName>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
@@ -141,7 +141,7 @@
       <sourceProduct refid="Terrain-Correction"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>Sigma0_${upcase_polarisation}</sourceBands>
+      <sourceBands>${band_type}_${upcase_polarisation}</sourceBands>
     </parameters>
   </node>
   <node id="Write">

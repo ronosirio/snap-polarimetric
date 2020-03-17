@@ -22,9 +22,12 @@
         "type": "string",
         "enum": ["VV", "VH"]
       }},
+    "calibration_band": {"type": "array", "default": ["sigma"]},
+    "specklefilter": {"type": "boolean", "default":  true},
     "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
     "tcorrection": {"type":  "boolean", "default":  true},
-    "clip_to_aoi": {"type":  "boolean", "default":  false}
+    "clip_to_aoi": {"type":  "boolean", "default":  false},
+    "lintodb": {"type": "boolean", "default": true}
   },
   "machine": {
     "type": "xlarge"
