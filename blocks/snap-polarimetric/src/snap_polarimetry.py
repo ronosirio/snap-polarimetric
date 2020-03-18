@@ -51,8 +51,8 @@ class SNAPPolarimetry:
 
         params = STACQuery.from_dict(params, lambda x: True)
         params.set_param_if_not_exists("calibration_band", ["sigma"])
-        params.set_param_if_not_exists("specklefilter", True)
-        params.set_param_if_not_exists("lintodb", True)
+        params.set_param_if_not_exists("speckle_filter", True)
+        params.set_param_if_not_exists("linear_to_db", True)
         params.set_param_if_not_exists("clip_to_aoi", False)
         params.set_param_if_not_exists("mask", None)
         params.set_param_if_not_exists("tcorrection", True)
@@ -142,9 +142,9 @@ class SNAPPolarimetry:
         params: dict = {
             "Subset": self.params.clip_to_aoi,
             "Land-Sea-Mask": self.params.mask,
-            "Speckle-Filter": self.params.specklefilter,
+            "Speckle-Filter": self.params.speckle_filter,
             "Terrain-Correction": self.params.tcorrection,
-            "LinearToFromdB": self.params.lintodb,
+            "LinearToFromdB": self.params.linear_to_db,
         }
 
         for key, _ in params.items():

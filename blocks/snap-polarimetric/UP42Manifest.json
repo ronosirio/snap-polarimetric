@@ -23,11 +23,11 @@
         "enum": ["VV", "VH"]
       }},
     "calibration_band": {"type": "array", "default": ["sigma"]},
-    "specklefilter": {"type": "boolean", "default":  true},
+    "speckle_filter": {"type": "boolean", "default":  true},
     "mask": {"type":  "array", "default":  null, "items": {"type": "string", "enum": ["land", "sea"]}},
     "tcorrection": {"type":  "boolean", "default":  true},
     "clip_to_aoi": {"type":  "boolean", "default":  false},
-    "lintodb": {"type": "boolean", "default": true}
+    "linear_to_db": {"type": "boolean", "default": true}
   },
   "machine": {
     "type": "xlarge"
@@ -53,7 +53,7 @@
         "up42_standard": {
           "format": "GTiff",
           "sensor": ">",
-          "dtype": ">",
+          "dtype": {"or" : ["uint16", "float"]},
           "resolution": ">",
           "bands": ">",
           "processing_level": ">"
