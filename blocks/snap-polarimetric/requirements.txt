@@ -1,4 +1,4 @@
-geojson==2.4.1
+geojson
 pytest
 pytest-pylint
 pytest-cov
