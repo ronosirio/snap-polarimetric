@@ -100,18 +100,19 @@ def read_write_bigtiff(out_path, pol):
         with rasterio.open("%s%s.tif" % (out_path, pol[0])) as src0:
             kwargs = src0.profile
             kwargs.update(
-                bigtiff="YES", compress="lzw"  # Output will be larger than 4GB
+                count=len(pol),
+                bigtiff="YES",
+                compress="lzw",  # Output will be larger than 4GB
             )
 
-            windows = src0.block_windows(1)
-
             with rasterio.open("%s%s.tif" % (out_path, "stack"), "w", **kwargs) as dst:
-                for b_id, layer in enumerate(pol, start=1):
+                for b_id, layer in enumerate(pol):
                     src = rasterio.open("%s%s.tif" % (out_path, layer))
+                    windows = src.block_windows(1)
                     for _, window in windows:
                         src_data = src.read(1, window=window)
-                        dst.write_band(b_id, src_data, window=window)
-                        dst.set_band_description(b_id, layer)
+                        dst.write(src_data, window=window, indexes=b_id + 1)
+                    dst.set_band_description(b_id + 1, layer)
 
 
 def set_data_path(feature: Feature, value: Any) -> Feature:
