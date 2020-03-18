@@ -327,6 +327,18 @@ def test_create_substitutions_dict_no_subseting(safe_file):
         test_feature, "VV", "vv"
     )
     assert "polygon" not in dict_default
+    assert dict_default["sigma_band"]
+    assert dict_default["gamma_band"] == "false"
+
+
+def test_create_substitutions_dict_add_beta_band(safe_file):
+    params = {"mask": ["sea"], "tcorrection": "false", "calibration_band": "beta"}
+
+    test_feature = safe_file.feature
+    dict_default = SNAPPolarimetry(params).create_substitutions_dict(
+        test_feature, "VV", "vv"
+    )
+    assert dict_default["beta_band"]
 
 
 # pylint: disable=redefined-outer-name
@@ -363,6 +375,28 @@ def test_generate_snap_graph(fixture_mainclass, safe_file):
     )
 
     assert path_to_manifest.endswith(expected_substring)
+
+
+def test_generate_snap_graph_no_speckle_filter(safe_file):
+    params = {"mask": ["sea"], "tcorrection": False, "speckle_filter": False}
+
+    SNAPPolarimetry(params).generate_snap_graph(
+        safe_file.feature,
+        "VV",
+        "/tmp/input/S1B_IW_GRDH_1SDV_"
+        "20190220T050359_20190220T050424_015025_01C12F_4EA4.SAFE_vv",
+    )
+    graph_xml_file = PosixPath(
+        "/tmp/S1B_IW_GRDH_1SDV_"
+        "20190220T050359_20190220T050424_015025_01C12F_4EA4.SAFE_VV.xml"
+    )
+    tree = ET.parse(str(graph_xml_file))
+    all_nodes = tree.findall("node")
+
+    node_id_list = [graph_node.attrib["id"] for graph_node in all_nodes]
+
+    assert "Speckle-Filter" not in node_id_list
+    assert "LinearToFromdB" in node_id_list
 
 
 def test_extract_relevant_coordinate(fixture_mainclass):
