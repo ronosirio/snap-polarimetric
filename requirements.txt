@@ -7,3 +7,5 @@ rasterio
 black
 shapely
 ciso8601
+black
+coverage-badge

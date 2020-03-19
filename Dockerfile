@@ -1,6 +1,6 @@
-FROM up42-snap:latest
+FROM up42/up42-snap-py37:latest
 
-ARG BUILD_DIR=blocks/snap-polarimetric
+ARG .
 ARG manifest
 LABEL "up42_manifest"=$manifest
 

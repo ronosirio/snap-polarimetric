@@ -1,8 +1,0 @@
-geojson==2.4.1
-shapely==1.6.4.post2
-mercantile==1.0.4
-requests==2.20.0
-requests-mock==1.5.2
-python-dateutil
-Pillow==6.2.0
-ciso8601

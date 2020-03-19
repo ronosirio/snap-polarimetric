@@ -5,7 +5,6 @@ is valid.
 from pathlib import Path
 import os
 
-import shutil
 import geojson
 
 if __name__ == "__main__":
@@ -26,7 +25,7 @@ if __name__ == "__main__":
 
     RUN_CMD = (
         """docker run -v %s:/tmp \
-                 -e 'UP42_TASK_PARAMETERS={"bbox": [14.558086395263674, 
+                 -e 'UP42_TASK_PARAMETERS={"bbox": [14.558086395263674,
                  53.4138293218823, 14.584178924560549, 53.433673900512616], "mask": null, "tcorrection": false,\
                     "polarisations": ["VV"], "clip_to_aoi": true}' \
                   -it snap-polarimetric"""

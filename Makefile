@@ -1,26 +1,16 @@
 ## Configuration for Makefile.
-SRC := blocks/snap-polarimetric
+SRC := .
 MANIFEST_JSON := $(SRC)/UP42Manifest.json
 UP42_DOCKERFILE := $(SRC)/Dockerfile
 DOCKER_TAG := snap-polarimetric
 DOCKER_VERSION := latest
-## Extra images needed by the block image.
-LIBS_DIR := $(SRC)/libs
-ESA_SNAP_DOCKERFILE := $(LIBS_DIR)/Dockerfile-esa-snap
-UP42_SNAP_DOCKERFILE := $(LIBS_DIR)/Dockerfile-up42-snap
 
 VALIDATE_ENDPOINT := https://api.up42.com/validate-schema/block
 REGISTRY := registry.up42.com
 CURL := curl
 DOCKER := docker
 
-build-image-esa-snap:
-	$(DOCKER) build -f $(ESA_SNAP_DOCKERFILE) -t up42-esa-snap .
-
-build-image-up42-snap:
-	$(DOCKER) build -f $(UP42_SNAP_DOCKERFILE) -t up42-snap .
-
-build: $(MANIFEST_JSON) build-image-esa-snap build-image-up42-snap
+build: $(MANIFEST_JSON)
 ifdef UID
 	$(DOCKER) build --build-arg manifest="$$(cat $<)" -f $(UP42_DOCKERFILE) -t $(REGISTRY)/$(UID)/$(DOCKER_TAG):$(DOCKER_VERSION) .
 else
@@ -43,10 +33,10 @@ login:
 	$(DOCKER) login -u $(USER) https://$(REGISTRY)
 
 install:
-	cd $(SRC) && ./setup.sh && cd $(CURDIR)
+	./setup.sh
 
 test:
-	cd $(SRC) && ./test.sh && cd $(CURDIR)
+	./test.sh
 
 e2e:
 	python e2e.py
